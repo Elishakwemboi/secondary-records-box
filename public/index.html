@@ -1,0 +1,1958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Secondary School Box - Welcome</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #0f172a;
+      color: #f8fafc;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .header h1 {
+      font-size: 2.2rem;
+      color: #38bdf8;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      color: #94a3b8;
+      font-size: 1rem;
+      max-width: 600px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+      width: 100%;
+      max-width: 960px;
+    }
+
+    .card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 20px;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.2s, border-color 0.2s;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      border-color: #38bdf8;
+    }
+
+    .card h3 {
+      color: #f1f5f9;
+      margin-bottom: 10px;
+      font-size: 1.2rem;
+    }
+
+    .card p {
+      color: #94a3b8;
+      font-size: 0.875rem;
+      line-height: 1.4;
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      display: block;
+      text-align: center;
+      padding: 10px;
+      border-radius: 6px;
+      font-weight: bold;
+      background: #2563eb;
+      color: #fff;
+      border: none;
+    }
+
+    .btn-emerald {
+      background: #059669;
+    }
+
+    .btn-amber {
+      background: #d97706;
+    }
+
+    /* TEACHER PLANNER */
+
+    .public-planner-section {
+      width: 100%;
+      max-width: 1100px;
+      margin-top: 55px;
+      margin-bottom: 30px;
+    }
+
+    .public-planner-section .container {
+      width: 100%;
+    }
+
+    .planner-header {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .planner-badge {
+      display: inline-block;
+      padding: 7px 14px;
+      border-radius: 20px;
+      background: #1e3a8a;
+      color: #93c5fd;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.7px;
+    }
+
+    .planner-header h2 {
+      margin-top: 12px;
+      margin-bottom: 8px;
+      font-size: 2rem;
+      color: #f8fafc;
+    }
+
+    .planner-header p {
+      color: #94a3b8;
+      font-size: 0.95rem;
+    }
+
+    .planner-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+    }
+
+    .planner-start {
+      text-align: center;
+      padding: 15px 10px 10px;
+    }
+
+    .planner-icon {
+      width: 70px;
+      height: 70px;
+      margin: 0 auto 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #172554;
+      border: 1px solid #1d4ed8;
+      border-radius: 18px;
+      font-size: 34px;
+    }
+
+    .planner-start h3 {
+      color: #f8fafc;
+      font-size: 1.45rem;
+      margin-bottom: 8px;
+    }
+
+    .planner-start > p {
+      color: #94a3b8;
+      font-size: 0.9rem;
+      margin-bottom: 28px;
+    }
+
+    .planner-options {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .planner-option {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      width: 100%;
+      padding: 20px;
+      text-align: left;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      color: #f8fafc;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .planner-option:hover {
+      transform: translateY(-3px);
+      border-color: #38bdf8;
+      background: #172554;
+    }
+
+    .option-icon {
+      width: 52px;
+      height: 52px;
+      min-width: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #1e3a8a;
+      border-radius: 12px;
+      font-size: 25px;
+    }
+
+    .planner-option strong {
+      display: block;
+      color: #f8fafc;
+      font-size: 15px;
+      margin-bottom: 5px;
+    }
+
+    .planner-option span {
+      display: block;
+      color: #94a3b8;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    #plannerFormArea {
+      animation: plannerFadeIn 0.25s ease;
+    }
+
+    @keyframes plannerFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .back-planner {
+      border: none;
+      background: transparent;
+      color: #38bdf8;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+
+    .back-planner:hover {
+      color: #7dd3fc;
+      text-decoration: underline;
+    }
+
+    #plannerFormTitle {
+      color: #f8fafc;
+      font-size: 1.4rem;
+      margin-bottom: 25px;
+    }
+
+    .public-planner-section .form-row {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .public-planner-section .form-group {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .public-planner-section .form-group label {
+      color: #cbd5e1;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 7px;
+    }
+
+    .public-planner-section input,
+    .public-planner-section select {
+      width: 100%;
+      padding: 12px 13px;
+      border: 1px solid #475569;
+      border-radius: 8px;
+      background: #0f172a;
+      color: #f8fafc;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .public-planner-section input::placeholder {
+      color: #64748b;
+    }
+
+    .public-planner-section input:focus,
+    .public-planner-section select:focus {
+      border-color: #38bdf8;
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.1);
+    }
+
+    .public-planner-section select option {
+      background: #1e293b;
+      color: #f8fafc;
+    }
+
+    .public-planner-section .btn-primary {
+      width: 100%;
+      padding: 13px 18px;
+      margin-top: 5px;
+      border: none;
+      border-radius: 8px;
+      background: #2563eb;
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .public-planner-section .btn-primary:hover {
+      background: #1d4ed8;
+    }
+
+    #previewCard {
+      padding: 22px;
+      margin-top: 25px;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      background: #0f172a;
+      color: #f8fafc;
+    }
+
+    #previewCard h3 {
+      color: #f8fafc;
+      margin-bottom: 15px;
+    }
+
+    #previewCard h4 {
+      color: #cbd5e1;
+      margin-bottom: 12px;
+    }
+
+    #previewCard p {
+      margin: 8px 0;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    #previewCard hr {
+      border: none;
+      border-top: 1px solid #334155;
+      margin: 20px 0;
+    }
+
+    .payment-box {
+      display: grid;
+      gap: 10px;
+      padding: 18px;
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 10px;
+    }
+
+    .payment-box label {
+      color: #cbd5e1;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .payment-box input,
+    .payment-box select {
+      width: 100%;
+      padding: 11px;
+      border: 1px solid #475569;
+      border-radius: 7px;
+      background: #0f172a;
+      color: #f8fafc;
+    }
+
+    .btn-success {
+      padding: 13px 18px;
+      border: none;
+      border-radius: 8px;
+      background: #059669;
+      color: #ffffff;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-success:hover {
+      background: #047857;
+    }
+
+    @media (max-width: 700px) {
+      .public-planner-section {
+        margin-top: 40px;
+      }
+
+      .planner-card {
+        padding: 20px;
+      }
+
+      .planner-header h2 {
+        font-size: 1.55rem;
+      }
+
+      .planner-options,
+      .public-planner-section .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 500px) {
+      body {
+        padding: 15px;
+      }
+
+      .planner-card {
+        padding: 16px;
+      }
+
+      .planner-option {
+        padding: 16px;
+      }
+    }
+    
+/* NCDC TEACHER PLANNER: TABLE BORDERS */
+#ai-planner table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  border: 1px solid #000;
+  table-layout: auto;
+}
+
+#ai-planner table th,
+#ai-planner table td {
+  border: 1px solid #000 !important;
+  padding: 8px;
+  text-align: left;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+
+#ai-planner table th {
+  font-weight: bold;
+  background-color: #e8eef7;
+  color: #000;
+}
+
+#ai-planner table tr {
+  border-bottom: 1px solid #000;
+}
+
+/* Keep table borders when printing */
+@media print {
+  #ai-planner table,
+  #ai-planner th,
+  #ai-planner td {
+    border: 1px solid #000 !important;
+    border-collapse: collapse;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
+  </style>
+</head>
+
+<body>
+
+  <!-- MAIN PORTAL -->
+  <div class="header">
+    <h1>📦 Secondary School Box</h1>
+    <p>Select your portal or onboard a new secondary school to get started.</p>
+  </div>
+
+  <div class="grid">
+
+    <a href="/register-school.html" class="card">
+      <div>
+        <h3>🏫 Register School</h3>
+        <p>Set up a new secondary school record and administrative user account.</p>
+      </div>
+      <span class="btn btn-emerald">Create Account</span>
+    </a>
+
+    <a href="/login.html?role=school_admin" class="card">
+      <div>
+        <h3>🔑 School Admin</h3>
+        <p>Access school settings, teaching allocations, and administrative controls.</p>
+      </div>
+      <span class="btn">Admin Portal</span>
+    </a>
+
+    <a href="/login.html?role=teacher" class="card">
+      <div>
+        <h3>👨‍🏫 Staff &amp; Teachers</h3>
+        <p>Enter student marks, manage class subjects, and generate student reports.</p>
+      </div>
+      <span class="btn">Staff Portal</span>
+    </a>
+
+    <a href="/login.html?role=super_admin" class="card">
+      <div>
+        <h3>🛡️ Super Admin</h3>
+        <p>Platform management, global system oversight, and maintenance.</p>
+      </div>
+      <span class="btn btn-amber">System Admin</span>
+    </a>
+
+  </div>
+
+  <!-- NCDC TEACHER PLANNER -->
+  <section id="ai-planner" class="public-planner-section">
+
+    <div class="container">
+
+      <div class="planner-header">
+        <span class="planner-badge">NCDC TEACHER PLANNER</span>
+        <h2>Plan Your Lessons &amp; Schemes</h2>
+        <p>Create NCDC-aligned lesson plans and schemes of work quickly and easily.</p>
+      </div>
+
+      <div class="planner-card">
+
+        <!-- START SCREEN -->
+        <div id="plannerStart" class="planner-start">
+
+          <div class="planner-icon">📚</div>
+
+          <h3>Welcome, Teacher</h3>
+
+          <p>Start planning your lessons and schemes of work from here.</p>
+
+          <div class="planner-options">
+
+            <button
+              type="button"
+              class="planner-option"
+              onclick="openPlanner('lesson_plan')">
+
+              <div class="option-icon">📝</div>
+
+              <div>
+                <strong>Lesson Plan</strong>
+                <span>Create an NCDC-aligned lesson plan</span>
+              </div>
+
+            </button>
+
+            <button
+              type="button"
+              class="planner-option"
+              onclick="openPlanner('scheme_of_work')">
+
+              <div class="option-icon">📖</div>
+
+              <div>
+                <strong>Scheme of Work</strong>
+                <span>Create an NCDC-aligned scheme of work</span>
+              </div>
+
+            </button>
+
+          </div>
+        </div>
+
+        <!-- PLANNER FORM AREA -->
+        <div id="plannerFormArea" style="display:none;">
+
+          <button
+            type="button"
+            class="back-planner"
+            onclick="backToPlannerStart()">
+            ← Back to Planner
+          </button>
+
+          <h3 id="plannerFormTitle">Create Lesson Plan</h3>
+
+          <form id="publicPlannerForm">
+
+            <input
+              type="hidden"
+              id="guestDocType"
+              value="lesson_plan">
+
+            <!-- SCHOOL & TEACHER DETAILS -->
+            <div class="form-row">
+              <div class="form-group">
+                <label for="guestSchoolName">School Name</label>
+                <input 
+                  type="text" 
+                  id="guestSchoolName" 
+                  placeholder="Enter school name" 
+                  required>
+              </div>
+
+              <div class="form-group">
+                <label for="guestTeacherName">Teacher Name</label>
+                <input 
+                  type="text" 
+                  id="guestTeacherName" 
+                  placeholder="Enter teacher name" 
+                  required>
+              </div>
+            </div>
+
+            <div class="form-row">
+
+              <div class="form-group">
+                <label for="guestClass">Class Level</label>
+
+                <select id="guestClass" onchange="updateGuestSubjects()" required>
+                  <option value="">-- Choose Class --</option>
+                  <optgroup label="O-Level (NCDC CBC)">
+                    <option value="Senior 1">Senior 1 (NCDC New Curriculum)</option>
+                    <option value="Senior 2">Senior 2 (NCDC New Curriculum)</option>
+                    <option value="Senior 3">Senior 3 (NCDC New Curriculum)</option>
+                    <option value="Senior 4">Senior 4 (NCDC New Curriculum)</option>
+                  </optgroup>
+                  <optgroup label="A-Level">
+                    <option value="Senior 5">Senior 5 (A-Level)</option>
+                    <option value="Senior 6">Senior 6 (A-Level)</option>
+                  </optgroup>
+                </select>
+              </div>
+
+              <!-- DYNAMIC SUBJECT DROPDOWN -->
+              <div class="form-group">
+                <label for="guestSubject">Select Subject</label>
+
+                <select id="guestSubject" name="subject" onchange="updateThemes()" required disabled>
+                  <option value="">-- Select Class First --</option>
+                </select>
+              </div>
+
+            </div>
+
+            <!-- TERM & WEEKS SECTION -->
+            <div class="form-row">
+
+              <!-- TERM SELECT -->
+              <div class="form-group">
+                <label for="guestTerm">Term</label>
+                <select id="guestTerm" onchange="updateThemes()" required>
+                  <option value="Term 1">Term 1</option>
+                  <option value="Term 2">Term 2</option>
+                  <option value="Term 3">Term 3</option>
+                </select>
+              </div>
+
+              <!-- SCHEME FIELD: Number of Weeks to Scheme -->
+              <div class="form-group" id="groupNumWeeks">
+                <label for="numWeeks">Number of Weeks to Scheme</label>
+                <select id="numWeeks" class="form-control">
+                  <option value="">Select number of weeks</option>
+                  <option value="6">6 Weeks</option>
+                  <option value="8">8 Weeks</option>
+                  <option value="10">10 Weeks</option>
+                  <option value="12">12 Weeks</option>
+                  <option value="14">14 Weeks</option>
+                </select>
+              </div>
+
+              <!-- LESSON PLAN FIELD: Select Week -->
+              <div class="form-group" id="groupWeekNumber" style="display:none;">
+                <label for="weekNumber">Select Week</label>
+                <select id="weekNumber" class="form-control">
+                  <option value="">Select week</option>
+                  <option value="Week 1">Week 1</option>
+                  <option value="Week 2">Week 2</option>
+                  <option value="Week 3">Week 3</option>
+                  <option value="Week 4">Week 4</option>
+                  <option value="Week 5">Week 5</option>
+                  <option value="Week 6">Week 6</option>
+                  <option value="Week 7">Week 7</option>
+                  <option value="Week 8">Week 8</option>
+                  <option value="Week 9">Week 9</option>
+                  <option value="Week 10">Week 10</option>
+                  <option value="Week 11">Week 11</option>
+                  <option value="Week 12">Week 12</option>
+                  <option value="Week 13">Week 13</option>
+                  <option value="Week 14">Week 14</option>
+                </select>
+              </div>
+
+            </div>
+
+            <!-- THEME & TOPIC SECTION -->
+            <div class="form-row">
+
+              <!-- EDITABLE THEME INPUT -->
+              <div class="form-group">
+                <label for="guestTheme">Theme</label>
+                <input 
+                  type="text"
+                  list="themeSuggestions" 
+                  id="guestTheme" 
+                  placeholder="Select or type theme" 
+                  onfocus="updateThemes()"
+                  oninput="updateTopics()" 
+                  required>
+                <datalist id="themeSuggestions"></datalist>
+              </div>
+
+              <!-- EDITABLE TOPIC INPUT -->
+              <div class="form-group">
+                <label for="guestTopic">Topic / Unit</label>
+                <input 
+                  type="text"
+                  list="topicSuggestions" 
+                  id="guestTopic" 
+                  placeholder="Select or type topic" 
+                  onfocus="updateTopics()"
+                  required>
+                <datalist id="topicSuggestions"></datalist>
+              </div>
+
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="guestDuration">Duration</label>
+                <select id="guestDuration" required>
+                  <option value="40 minutes">40 minutes</option>
+                  <option value="60 minutes">60 minutes</option>
+                  <option value="80 minutes">80 minutes</option>
+                  <option value="120 minutes">120 minutes</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+  <label for="lessonDate">Date:</label>
+  <input type="date" id="lessonDate" class="form-control" required>
+</div>
+
+<div class="form-row">
+  <div class="form-group col-md-6">
+    <label for="startTime">Starting Time:</label>
+    <input type="time" id="startTime" class="form-control" required>
+  </div>
+  <div class="form-group col-md-6">
+    <label for="endTime">Ending Time:</label>
+    <input type="time" id="endTime" class="form-control" required>
+  </div>
+</div>
+            <button type="submit" class="btn-primary">
+              Generate Free Preview
+            </button>
+
+          </form>
+        </div>
+
+        <!-- PREVIEW AND PAYMENT AREA -->
+        <div id="previewCard" style="display:none;">
+
+          <h3>NCDC Document Preview</h3>
+
+          <div id="previewContent"></div>
+
+          <hr>
+
+          <h4>Unlock Full Document &amp; Download PDF</h4>
+
+          <p>
+            Payment processing and PDF downloading must be connected
+            to a working service before they can be used.
+          </p>
+
+          <div class="payment-box">
+
+            <label for="payNetwork">Select Network:</label>
+
+            <select id="payNetwork">
+              <option value="MTN">MTN MoMo</option>
+              <option value="AIRTEL">Airtel Money</option>
+            </select>
+
+            <label for="payPhone">Phone Number:</label>
+
+            <input
+              type="tel"
+              id="payPhone"
+              placeholder="0770000000 or 0750000000">
+
+            <button
+              type="button"
+              id="payButton"
+              class="btn-success">
+              Pay &amp; Download PDF
+            </button>
+
+            <p id="paymentNotice" role="status" aria-live="polite"></p>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+  <script>
+    // CURRICULUM SUBJECT LISTS
+    const curriculumSubjects = {
+      oLevel: [
+        "Mathematics",
+        "English Language",
+        "Physics",
+        "Chemistry",
+        "Biology",
+        "Geography",
+        "History and Political Education",
+        "Entrepreneurship Education",
+        "Christian Religious Education",
+        "Islamic Religious Education",
+        "Kiswahili",
+        "Physical Education",
+        "ICT / Computer Studies",
+        "Agriculture",
+        "Fine Art",
+        "Literature in English",
+        "Performing Arts",
+        "Technology and Design",
+        "Nutrition and Food Technology",
+        "Luganda",
+        "French"
+      ],
+      aLevel: [
+        "General Paper",
+        "Sub-mathematics",
+        "Sub-ICT",
+        "Mathematics",
+        "Physics",
+        "Chemistry",
+        "Biology",
+        "Agriculture",
+        "Economics",
+        "Geography",
+        "History",
+        "Entrepreneurship Education",
+        "Christian Religious Education",
+        "Islamic Religious Education",
+        "Literature in English",
+        "Kiswahili",
+        "Luganda",
+        "Fine Art",
+        "Commerce",
+        "Accounting",
+        "French"
+      ]
+    };
+
+    // FULL NCDC CURRICULUM SYLLABUS DATASET
+    const curriculumSyllabus = {
+      "Senior 1": {
+        "Mathematics": {
+          "Term 1": {
+            "Number Systems & Operations": ["Number Bases", "Fractions and Decimals", "Integers", "Prime Factors & Divisibility"],
+            "Basic Geometry": ["Lines, Rays and Angles", "Polygons and Properties", "Construction of Angles"]
+          },
+          "Term 2": {
+            "Algebraic Concepts": ["Algebraic Expressions", "Linear Equations in One Unknown", "Simple Inequalities"],
+            "Measurement": ["Perimeter and Area of Plane Shapes", "Volume and Capacity", "Mass, Weight and Density"]
+          },
+          "Term 3": {
+            "Coordinate Geometry": ["Cartesian Co-ordinates", "Plotting Linear Graphs"],
+            "Transformations": ["Reflection and Symmetry", "Rotational Symmetry"],
+            "Statistics & Data": ["Data Collection Methods", "Frequency Tables and Bar Charts"]
+          }
+        },
+        "English Language": {
+          "Term 1": {
+            "Personal Life & Identity": ["Describing Self and Family", "Nouns & Pronouns in Context"],
+            "School Environment": ["Talking About School Rules & Daily Routines", "Present Tenses"]
+          },
+          "Term 2": {
+            "Community & Occupation": ["Jobs, Professions and Careers", "Adjectives and Adverbs"],
+            "Health & Hygiene": ["Personal Hygiene & Illnesses", "Modal Verbs (Must, Should, Can)"]
+          },
+          "Term 3": {
+            "Environment & Leisure": ["Describing Weather and Seasons", "Prepositions & Conjunctions"],
+            "Storytelling & Literature": ["Reading Short Stories & Summarising", "Past Simple & Continuous Tenses"]
+          }
+        },
+        "Physics": {
+          "Term 1": {
+            "Introduction to Physics": ["Measurement and SI Units", "Laboratory Safety Rules", "Scientific Estimations"],
+            "States of Matter": ["Particle Theory of Matter", "Diffusion and Brownian Motion"]
+          },
+          "Term 2": {
+            "Mechanics & Density": ["Mass, Volume and Density", "Relative Density Determination", "Pressure in Fluids"]
+          },
+          "Term 3": {
+            "Thermal Physics": ["Temperature Measurement & Thermometers", "Thermal Expansion of Matter", "Conduction, Convection & Radiation"]
+          }
+        },
+        "Chemistry": {
+          "Term 1": {
+            "Chemistry and Society": ["Importance of Chemistry in Daily Life", "Laboratory Apparatus and Uses"],
+            "States and Changes of Matter": ["Solids, Liquids, Gases", "Melting, Freezing and Boiling Points"]
+          },
+          "Term 2": {
+            "Pure and Impure Substances": ["Criteria of Purity", "Separation Techniques (Filtration, Distillation, Evaporation, Chromatography)"]
+          },
+          "Term 3": {
+            "Air and Atmosphere": ["Composition of Air", "Preparation & Properties of Oxygen", "Rusting and Prevention"]
+          }
+        },
+        "Biology": {
+          "Term 1": {
+            "Introduction to Biology": ["Characteristics of Living Organisms", "Light Microscope Parts & Maintenance"],
+            "Cell Biology": ["Plant and Animal Cell Structures", "Cell Specialization & Levels of Organization"]
+          },
+          "Term 2": {
+            "Classification of Organisms": ["Binomial Nomenclature", "Kingdom Monera and Protista", "Kingdom Fungi"]
+          },
+          "Term 3": {
+            "Plant & Animal Diversity": ["Invertebrates (Insects, Arachnids, Myriapods)", "Flowering and Non-Flowering Plants"]
+          }
+        },
+        "Geography": {
+          "Term 1": {
+            "Introduction to Geography": ["Meaning & Branches of Geography", "The Solar System and Earth's Rotation"],
+            "Map Work": ["Grid References & Scale", "Finding Direction and Bearing"]
+          },
+          "Term 2": {
+            "Physical Features of East Africa": ["Formation of Mountains & Rift Valley", "Lakes and Rivers of East Africa"]
+          },
+          "Term 3": {
+            "Weather and Climate": ["Elements of Weather & Instruments", "Measuring Temperature & Rainfall"]
+          }
+        },
+        "History and Political Education": {
+          "Term 1": {
+            "Understanding History": ["Sources of History (Oral, Archaeology, Written)", "Importance of History and Citizenship"],
+            "Origins & Migrations": ["Bantu Migrations into East Africa", "Nilotic and Nilo-Hamitic Migrations"]
+          },
+          "Term 2": {
+            "Social & Political Systems": ["Pre-Colonial Kingdoms in East Africa", "Clan Systems and Traditional Governance"]
+          },
+          "Term 3": {
+            "Citizenship & Governance": ["Human Rights & Duties of a Citizen", "Democracy and Constitution"]
+          }
+        },
+        "Entrepreneurship Education": {
+          "Term 1": {
+            "Introduction to Entrepreneurship": ["Concept of Entrepreneurship", "Qualities of a Successful Entrepreneur"],
+            "Business Ideas": ["Identifying Business Opportunities in Local Community"]
+          },
+          "Term 2": {
+            "Business Communication": ["Types of Communication in Business", "Customer Service Skills"]
+          },
+          "Term 3": {
+            "Financial Literacy": ["Savings and Spending Habits", "Personal Budgeting"]
+          }
+        },
+        "ICT / Computer Studies": {
+          "Term 1": {
+            "Introduction to Computers": ["Hardware & Software Concepts", "Basic Computer Operations & Keyboard Skills"]
+          },
+          "Term 2": {
+            "Word Processing": ["Creating & Editing Documents", "Formatting Text & Tables"]
+          },
+          "Term 3": {
+            "Computer Safety & Internet": ["Health & Safety in Computer Labs", "Introduction to Web Browsing & Search"]
+          }
+        }
+      },
+      "Senior 2": {
+        "Mathematics": {
+          "Term 1": {
+            "Numerical & Commercial Math": ["Ratios, Proportions and Percentages", "Commercial Arithmetic (Profit, Loss, Interest)"],
+            "Algebraic Skills": ["Expansion & Factorisation of Quadratic Expressions", "Simultaneous Equations"]
+          },
+          "Term 2": {
+            "Geometry & Trigonometry": ["Pythagoras Theorem", "Trigonometric Ratios (Sin, Cos, Tan)"],
+            "Vectors": ["Vector Representation and Magnitude", "Column Vectors & Vector Addition"]
+          },
+          "Term 3": {
+            "Matrices": ["Order and Addition of Matrices", "Matrix Multiplication"],
+            "Probability": ["Simple Probability Experiments", "Theoretical Probability & Tree Diagrams"]
+          }
+        },
+        "Physics": {
+          "Term 1": {
+            "Forces & Motion": ["Linear Motion & Velocity-Time Graphs", "Newton's Laws of Motion", "Friction and Its Applications"]
+          },
+          "Term 2": {
+            "Work, Energy & Power": ["Forms of Energy & Conservation", "Work Done and Mechanical Power", "Simple Machines (Pulleys, Levers, Inclined Planes)"]
+          },
+          "Term 3": {
+            "Light & Optics": ["Rectilinear Propagation of Light", "Reflection at Plane and Curved Mirrors", "Refraction of Light Through Prisms & Lenses"]
+          }
+        },
+        "Chemistry": {
+          "Term 1": {
+            "Atomic Structure": ["Subatomic Particles (Protons, Neutrons, Electrons)", "Atomic Number, Mass Number and Isotopes", "Electronic Configuration"]
+          },
+          "Term 2": {
+            "Periodic Table & Bonding": ["Groups and Periods in Periodic Table", "Ionic and Covalent Bonding", "Valency and Chemical Formulae"]
+          },
+          "Term 3": {
+            "Acids, Bases & Indicators": ["Properties of Acids and Bases", "pH Scale and Universal Indicator", "Preparation of Salts"]
+          }
+        },
+        "Biology": {
+          "Term 1": {
+            "Nutrition in Plants & Animals": ["Photosynthesis Mechanism & Experiments", "Human Digestive System and Enzymes", "Balanced Diets and Deficiency Diseases"]
+          },
+          "Term 2": {
+            "Transport System": ["Transport in Plants (Xylem and Phloem)", "Human Circulatory System (Heart, Blood Vessels, Blood Cells)"]
+          },
+          "Term 3": {
+            "Gaseous Exchange & Respiration": ["Respiratory Structures in Plants & Animals", "Aerobic and Anaerobic Respiration Mechanism"]
+          }
+        }
+      },
+      "Senior 3": {
+        "Mathematics": {
+          "Term 1": {
+            "Quadratic Equations": ["Solving Quadratic Equations by Factorisation & Formula", "Quadratic Graphs & Roots"],
+            "Circle Geometry": ["Circle Theorems & Angle Properties", "Tangents and Chords"]
+          },
+          "Term 2": {
+            "Linear Programming": ["Formulating Inequalities from Word Problems", "Feasible Regions & Optimization Graphs"],
+            "3D Geometry": ["Angles Between Lines and Planes", "Surface Area & Volume of Cones, Pyramids & Spheres"]
+          },
+          "Term 3": {
+            "Functions": ["Function Notation and Composite Functions", "Inverse Functions"],
+            "Advanced Statistics": ["Mean, Median and Mode from Grouped Data", "Cumulative Frequency Curves (Ogives)"]
+          }
+        },
+        "Physics": {
+          "Term 1": {
+            "Waves & Sound": ["Transverse and Longitudinal Waves", "Wave Equation (v = fλ)", "Production, Reflection and Speed of Sound"]
+          },
+          "Term 2": {
+            "Current Electricity": ["Electric Current, Voltage and Resistance", "Ohm's Law & Circuit Calculations", "Electrical Energy and Power"]
+          },
+          "Term 3": {
+            "Magnetism": ["Magnetic Fields & Plotting Field Lines", "Electromagnetism & Applications (Electric Bell, Relay)"]
+          }
+        },
+        "Chemistry": {
+          "Term 1": {
+            "Mole Concept": ["Molar Mass and Avogadro's Constant", "Empirical & Molecular Formulae", "Stoichiometry & Molar Gas Volume"]
+          },
+          "Term 2": {
+            "Carbon and Carbonates": ["Allotropes of Carbon (Diamond, Graphite)", "Carbon Dioxide Preparation & Uses", "Hardness of Water"]
+          },
+          "Term 3": {
+            "Nitrogen and Compounds": ["Preparation of Nitrogen and Ammonia", "Nitric Acid Industrial Production (Ostwald Process)"]
+          }
+        },
+        "Biology": {
+          "Term 1": {
+            "Excretion & Homeostasis": ["Human Excretory Organs (Kidney, Skin, Lungs)", "Structure of Nephron and Urine Formation", "Thermoregulation"]
+          },
+          "Term 2": {
+            "Coordination & Control": ["Nervous System & Reflex Arc", "Structure and Function of Human Eye & Ear", "Endocrine System & Hormones"]
+          },
+          "Term 3": {
+            "Support & Movement": ["Human Skeleton and Joint Types", "Muscular Movement and Antagonistic Pairs", "Support in Plants"]
+          }
+        }
+      },
+      "Senior 4": {
+        "Mathematics": {
+          "Term 1": {
+            "Matrices & Transformations": ["2D Transformations using Matrices", "Determinants and Inverses of 2x2 Matrices"],
+            "Loci & Constructions": ["Locus of Points", "Scale Drawing and Bearings Navigation"]
+          },
+          "Term 2": {
+            "Calculus Introduction": ["Differentiation from First Principles & Rules", "Stationary Points & Curve Sketching", "Basic Integration"]
+          },
+          "Term 3": {
+            "Consolidation & Exam Prep": ["Comprehensive Revision of Papers 1 & 2", "Mock Assessment & Past NCDC Practice"]
+          }
+        },
+        "Physics": {
+          "Term 1": {
+            "Electromagnetic Induction": ["Faraday's and Lenz's Laws", "Transformers & Power Transmission", "AC and DC Generators"]
+          },
+          "Term 2": {
+            "Atomic & Nuclear Physics": ["Structure of Atom & Isotopes", "Radioactivity (Alpha, Beta, Gamma Radiation)", "Half-Life & Nuclear Energy"]
+          },
+          "Term 3": {
+            "Revision & Practical Skills": ["Physics Practical Exam Preparation", "Uncertainty Analysis and Graph Fitting"]
+          }
+        },
+        "Chemistry": {
+          "Term 1": {
+            "Sulphur and Compounds": ["Extraction of Sulphur (Frasch Process)", "Sulphur Dioxide & Contact Process for Sulphuric Acid"]
+          },
+          "Term 2": {
+            "Organic Chemistry": ["Hydrocarbons (Alkanes, Alkenes, Alkynes)", "Alcohols and Organic Acids", "Polymers and Synthetic Fibres"]
+          },
+          "Term 3": {
+            "Qualitative Analysis": ["Identification of Cations and Anions", "Chemical Test Experiments & Revision"]
+          }
+        },
+        "Biology": {
+          "Term 1": {
+            "Reproduction in Organisms": ["Asexual and Sexual Reproduction", "Structure of Flower and Pollination", "Human Reproductive System & Menstrual Cycle"]
+          },
+          "Term 2": {
+            "Genetics & Evolution": ["Monohybrid Inheritance & Mendel's Laws", "Sex Determination & Sex-Linked Traits", "Variation and Natural Selection"]
+          },
+          "Term 3": {
+            "Ecology": ["Ecosystems, Food Chains and Webs", "Nutrient Cycles (Carbon and Nitrogen)", "Environmental Pollution & Conservation"]
+          }
+        }
+      },
+      "Senior 5": {
+        "Mathematics": {
+          "Term 1": {
+            "Pure Mathematics - Algebra": ["Polynomials and Partial Fractions", "Binomial Expansion", "Indices and Logarithms"],
+            "Mechanics": ["Statics of Rigid Bodies", "Coplanar Forces & Equilibrium"]
+          },
+          "Term 2": {
+            "Pure Mathematics - Calculus": ["Trigonometric Identites & Equations", "Differentiation Rules (Product, Quotient, Chain)"],
+            "Probability & Statistics": ["Discrete Probability Distributions", "Permutations and Combinations"]
+          },
+          "Term 3": {
+            "Pure Mathematics - Integration": ["Integration Methods (Substitution, Parts)", "Applications to Areas and Volumes"],
+            "Mechanics": ["Kinematics of Motion in a Straight Line", "Projectiles"]
+          }
+        },
+        "General Paper": {
+          "Term 1": {
+            "Social & Economic Issues": ["Poverty Alleviation and Sustainable Development", "Gender Equality and Women Empowerment"]
+          },
+          "Term 2": {
+            "Science & Technology": ["Impact of Artificial Intelligence on Society", "Environmental Degradation and Climate Action"]
+          },
+          "Term 3": {
+            "Politics & Global Affairs": ["Governance, Democracy and Corruption", "International Relations & EAC Integration"]
+          }
+        },
+        "Sub-mathematics": {
+          "Term 1": {
+            "Algebra & Equations": ["Quadratic Equations", "Logarithms and Exponents"],
+            "Coordinate Geometry": ["Equations of Straight Lines and Circles"]
+          },
+          "Term 2": {
+            "Calculus": ["Basic Differentiation and Maxima/Minima", "Basic Integration"],
+            "Statistics": ["Measures of Central Tendency and Dispersion"]
+          },
+          "Term 3": {
+            "Probability & Linear Programming": ["Probability Laws & Tree Diagrams", "Graphical Solution to Linear Programming"]
+          }
+        },
+        "Sub-ICT": {
+          "Term 1": {
+            "Computer Fundamentals": ["Hardware Components & Systems Architecture", "System and Application Software"]
+          },
+          "Term 2": {
+            "Spreadsheet Processing": ["Excel Formulas, Functions (VLOOKUP, IF)", "Charts and Data Analysis"]
+          },
+          "Term 3": {
+            "Database Systems": ["Relational Database Concepts", "Creating Tables, Queries & Reports in MS Access"]
+          }
+        }
+      },
+      "Senior 6": {
+        "Mathematics": {
+          "Term 1": {
+            "Pure Mathematics": ["Differential Equations & Modelling", "Vectors in Three Dimensions (3D)", "Complex Numbers"]
+          },
+          "Term 2": {
+            "Applied Mathematics": ["Continuous Random Variables and Normal Distribution", "Numerical Methods (Trapezium Rule, Newton-Raphson)"]
+          },
+          "Term 3": {
+            "Consolidation & Examination Prep": ["Mock Examinations", "UACE Past Paper Solutions & Revision"]
+          }
+        },
+        "Sub-ICT": {
+          "Term 1": {
+            "Web Design & Publishing": ["HTML5 Tags & Structure", "CSS Layouts & Styling", "Web Hosting Principles"]
+          },
+          "Term 2": {
+            "Presentation & Desktop Publishing": ["Creating Dynamic Presentations", "Designing Publications & Posters"]
+          },
+          "Term 3": {
+            "ICT Ethics & Security": ["Cybersecurity, Malware and Firewalls", "UACE Final Practical & Theory Revision"]
+          }
+        }
+      }
+    };
+
+   // 1. UPDATE SUBJECTS ACCORDING TO CLASS
+function updateGuestSubjects() {
+  const classSelect = document.getElementById("guestClass");
+  const subjectSelect = document.getElementById("guestSubject");
+  const selectedClass = classSelect.value;
+
+  subjectSelect.innerHTML = "";
+
+  if (!selectedClass) {
+    subjectSelect.disabled = true;
+    subjectSelect.innerHTML =
+      '<option value="">-- Select Class First --</option>';
+    updateThemes();
+    return;
+  }
+
+  subjectSelect.disabled = false;
+  subjectSelect.innerHTML =
+    '<option value="">-- Choose Subject --</option>';
+
+  let subjects = [];
+
+  if (["Senior 1", "Senior 2", "Senior 3", "Senior 4"].includes(selectedClass)) {
+    subjects = curriculumSubjects.oLevel;
+  } else if (["Senior 5", "Senior 6"].includes(selectedClass)) {
+    subjects = curriculumSubjects.aLevel;
+  }
+
+  subjects.forEach(subject => {
+    const option = document.createElement("option");
+    option.value = subject;
+    option.textContent = subject;
+    subjectSelect.appendChild(option);
+  });
+
+  updateThemes();
+}
+
+
+// 2. UPDATE THEMES
+function updateThemes() {
+  const classLevel = document.getElementById("guestClass").value;
+  const subject = document.getElementById("guestSubject").value;
+  const term = document.getElementById("guestTerm").value;
+  const themeList = document.getElementById("themeSuggestions");
+  const themeInput = document.getElementById("guestTheme");
+  const topicInput = document.getElementById("guestTopic");
+
+  themeList.replaceChildren();
+
+  if (!classLevel || !subject || !term) return;
+
+  const themes =
+    curriculumSyllabus[classLevel]?.[subject]?.[term];
+
+  if (themes) {
+    Object.keys(themes).forEach(theme => {
+      const option = document.createElement("option");
+      option.value = theme;
+      themeList.appendChild(option);
+    });
+  }
+
+  // Clear a previous selection if it does not belong to the new subject.
+  if (themeInput.value && themes && !themes[themeInput.value]) {
+    themeInput.value = "";
+    topicInput.value = "";
+  }
+
+  updateTopics();
+}
+
+// 3. UPDATE TOPICS
+function updateTopics() {
+  const classLevel = document.getElementById("guestClass").value;
+  const subject = document.getElementById("guestSubject").value;
+  const term = document.getElementById("guestTerm").value;
+  const theme = document.getElementById("guestTheme").value;
+  const topicList = document.getElementById("topicSuggestions");
+
+  topicList.replaceChildren();
+
+  if (!classLevel || !subject || !term || !theme) return;
+
+  const topics =
+    curriculumSyllabus[classLevel]?.[subject]?.[term]?.[theme];
+
+  if (Array.isArray(topics)) {
+    topics.forEach(topic => {
+      const option = document.createElement("option");
+      option.value = topic;
+      topicList.appendChild(option);
+    });
+  }
+}
+// 4. SAFE HTML HELPERS
+// These prevent AI-generated text from being interpreted as HTML.
+function plannerEscape(value) {
+  return String(value ?? "").replace(/[&<>"']/g, character => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[character]);
+}
+
+function plannerText(value) {
+  if (value === null || value === undefined || value === "") {
+    return "Not provided";
+  }
+
+  return plannerEscape(value).replace(/\n/g, "<br>");
+}
+
+function plannerList(items) {
+  if (!Array.isArray(items) || items.length === 0) {
+    return "<p>Not provided.</p>";
+  }
+
+  return "<ul>" + items.map(item =>
+    `<li>${plannerText(item)}</li>`
+  ).join("") + "</ul>";
+}
+
+function plannerSection(title, content) {
+  return `
+    <section class="planner-document-section">
+      <h3>${plannerEscape(title)}</h3>
+      ${content}
+    </section>
+  `;
+}
+
+
+    // HELPER FUNCTION TO RESET SELECT DROPDOWNS
+    function resetSelect(selectElement, defaultText) {
+      selectElement.innerHTML = `<option value="">${defaultText}</option>`;
+      selectElement.disabled = true;
+    }
+
+   // 5. SWITCH BETWEEN LESSON PLAN AND SCHEME
+function openPlanner(type) {
+  if (!["lesson_plan", "scheme_of_work"].includes(type)) return;
+
+  document.getElementById("plannerStart").style.display = "none";
+  document.getElementById("plannerFormArea").style.display = "block";
+  document.getElementById("previewCard").style.display = "none";
+  document.getElementById("guestDocType").value = type;
+
+  document.getElementById("plannerFormTitle").textContent =
+    type === "lesson_plan"
+      ? "Create Lesson Plan"
+      : "Create Scheme of Work";
+
+  document.getElementById("groupNumWeeks").style.display =
+    type === "scheme_of_work" ? "block" : "none";
+
+  document.getElementById("groupWeekNumber").style.display =
+    type === "lesson_plan" ? "block" : "none";
+
+  document.getElementById("paymentNotice").textContent = "";
+
+  document.getElementById("ai-planner").scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
+}
+
+    // 6. RETURN TO START SCREEN
+function backToPlannerStart() {
+  document.getElementById("plannerStart").style.display = "block";
+  document.getElementById("plannerFormArea").style.display = "none";
+  document.getElementById("previewCard").style.display = "none";
+}
+// 7. CREATE DOCUMENT TOOLBAR
+// This toolbar does not replace your existing payment section.
+function createPlannerToolbar() {
+  let toolbar = document.getElementById("plannerExportToolbar");
+
+  if (toolbar) return toolbar;
+
+  toolbar = document.createElement("div");
+  toolbar.id = "plannerExportToolbar";
+  toolbar.style.cssText =
+    "display:flex;flex-wrap:wrap;gap:10px;margin:15px 0;";
+
+  toolbar.innerHTML = `
+    <button type="button" id="plannerEditButton" class="btn-primary">
+      Edit Document
+    </button>
+
+    <button type="button" id="plannerWordButton" class="btn-primary">
+      Download Word Document
+    </button>
+
+    <button type="button" id="plannerHtmlButton" class="btn-primary">
+      Download HTML File
+    </button>
+
+    <button type="button" id="plannerPrintButton" class="btn-success">
+      Print / Save as PDF
+    </button>
+  `;
+
+  const previewContent = document.getElementById("previewContent");
+  previewContent.insertAdjacentElement("afterend", toolbar);
+
+  document.getElementById("plannerEditButton").addEventListener("click", () => {
+    const editing = previewContent.contentEditable === "true";
+
+    previewContent.contentEditable = editing ? "false" : "true";
+
+    document.getElementById("plannerEditButton").textContent =
+      editing ? "Edit Document" : "Finish Editing";
+
+    previewContent.style.outline =
+      editing ? "none" : "2px dashed #38bdf8";
+
+    document.getElementById("paymentNotice").textContent =
+      editing
+        ? "Editing finished. Your changes are ready to export."
+        : "Editing enabled. Click the document text to make changes.";
+  });
+
+  document.getElementById("plannerWordButton").addEventListener("click", () => {
+    downloadPlannerFile("word");
+  });
+
+  document.getElementById("plannerHtmlButton").addEventListener("click", () => {
+    downloadPlannerFile("html");
+  });
+
+  document.getElementById("plannerPrintButton").addEventListener("click", () => {
+    printPlannerDocument();
+  });
+
+  return toolbar;
+}
+
+// 8. DOCUMENT STYLES FOR SCREEN, WORD AND PRINT
+function getPlannerDocumentStyles() {
+  return `
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      color: #172033;
+      line-height: 1.5;
+      margin: 24px;
+      background: white;
+    }
+
+    h2, h3, h4 {
+      color: #123b63;
+      margin-top: 20px;
+      margin-bottom: 8px;
+    }
+
+    .planner-document-title {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .planner-meta {
+      border: 1px solid #cbd5e1;
+      padding: 12px;
+      margin-bottom: 20px;
+      background: #f8fafc;
+    }
+
+    .planner-document-section {
+      margin: 18px 0;
+      break-inside: avoid;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      font-size: 10pt;
+    }
+
+    th, td {
+      border: 1px solid #64748b;
+      padding: 7px;
+      text-align: left;
+      vertical-align: top;
+      overflow-wrap: anywhere;
+    }
+
+    th {
+      background: #e2e8f0;
+      color: #172033;
+    }
+
+    ul {
+      padding-left: 24px;
+    }
+
+    p {
+      margin: 6px 0;
+    }
+
+    @media print {
+      body {
+        margin: 12mm;
+        font-size: 10pt;
+      }
+
+      h2, h3, h4 {
+        break-after: avoid;
+      }
+
+      table, tr {
+        break-inside: avoid;
+      }
+
+      .planner-document-section {
+        break-inside: auto;
+      }
+    }
+  `;
+}
+// 9. DOWNLOAD THE CURRENT EDITED DOCUMENT
+function downloadPlannerFile(format) {
+  const previewContent = document.getElementById("previewContent");
+
+  if (!previewContent || !previewContent.innerHTML.trim()) {
+    alert("Generate a document before downloading.");
+    return;
+  }
+
+  const toolbar = document.getElementById("plannerExportToolbar");
+  const title = previewContent.querySelector("h2, h3")?.textContent
+    || "NCDC_Teacher_Planner";
+
+  // The toolbar is outside previewContent, so it will not appear in files.
+  const fileBody = previewContent.innerHTML;
+
+  const completeHtml = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>${plannerEscape(title)}</title>
+      <style>${getPlannerDocumentStyles()}</style>
+    </head>
+    <body>
+      ${fileBody}
+    </body>
+    </html>
+  `;
+
+  const safeName = title
+    .replace(/[^a-z0-9_-]+/gi, "_")
+    .replace(/^_+|_+$/g, "") || "NCDC_Teacher_Planner";
+
+  let mimeType;
+  let extension;
+
+  if (format === "word") {
+    // HTML content in a .doc file can be opened by Microsoft Word.
+    // This is a Word-compatible document, not a native DOCX file.
+    mimeType = "application/msword;charset=utf-8";
+    extension = "doc";
+  } else {
+    mimeType = "text/html;charset=utf-8";
+    extension = "html";
+  }
+
+  const blob = new Blob(["\ufeff", completeHtml], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = `${safeName}.${extension}`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+  document.getElementById("paymentNotice").textContent =
+    format === "word"
+      ? "Word-compatible document download requested."
+      : "HTML document download requested.";
+}
+
+
+// 10. PRINT OR SAVE AS PDF
+function printPlannerDocument() {
+  const previewContent = document.getElementById("previewContent");
+
+  if (!previewContent || !previewContent.innerHTML.trim()) {
+    alert("Generate a document before printing.");
+    return;
+  }
+
+  const printWindow = window.open("", "_blank");
+
+  if (!printWindow) {
+    alert("The print window was blocked. Allow pop-ups for this website and try again.");
+    return;
+  }
+
+  const title = previewContent.querySelector("h2, h3")?.textContent
+    || "NCDC Teacher Planner";
+
+  printWindow.document.open();
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <title>${plannerEscape(title)}</title>
+      <style>${getPlannerDocumentStyles()}</style>
+    </head>
+    <body>
+      ${previewContent.innerHTML}
+      <script>
+        window.addEventListener("load", function () {
+          window.setTimeout(function () {
+            window.print();
+          }, 300);
+        });
+      <\/script>
+    </body>
+    </html>
+  `);
+  printWindow.document.close();
+
+  document.getElementById("paymentNotice").textContent =
+    "Print window opened. Select Save as PDF in the print destination if you want a PDF file.";
+}
+
+
+// 11. RENDER LESSON PLAN
+function renderLessonPlan(data) {
+  const outcomes = plannerList(data.learningOutcomes);
+  const genericSkills = plannerList(data.genericSkills);
+  const crossCutting = plannerList(data.crossCuttingIssues);
+  const materials = plannerList(data.learningMaterials);
+  const references = plannerList(data.references);
+
+  const progression = Array.isArray(data.progression) && data.progression.length
+    ? data.progression
+    : [
+        {
+          stage: "Introduction",
+          time: "",
+          teacherActivity: data.introduction || "",
+          learnerActivity: "Respond to introductory questions and share prior knowledge."
+        },
+        ...(data.mainActivities || []).map(activity => ({
+          stage: activity.phase || "Lesson Development",
+          time: "",
+          teacherActivity: activity.teacherRole || "",
+          learnerActivity: activity.learnerRole || ""
+        })),
+        {
+          stage: "Lesson Reflection",
+          time: "",
+          teacherActivity: data.conclusion || "",
+          learnerActivity: "Summarise the key learning points."
+        }
+      ];
+
+  const progressionRows = progression.map(stage => `
+    <tr>
+      <td>
+        <strong>${plannerText(stage.stage)}</strong>
+        ${stage.time
+          ? `<br><strong>Time:</strong> ${plannerText(stage.time)}`
+          : ""}
+      </td>
+      <td>${plannerText(stage.teacherActivity)}</td>
+      <td>${plannerText(stage.learnerActivity)}</td>
+    </tr>
+  `).join("");
+
+  return `
+    <div class="planner-document">
+      <h2 class="planner-document-title">
+        NCDC COMPETENCY-BASED LESSON PLAN
+      </h2>
+
+      ${plannerSection("1. Lesson Details", `
+        <p><strong>School:</strong> ${plannerText(data.schoolName)}</p>
+        <p><strong>Teacher:</strong> ${plannerText(data.teacherName)}</p>
+        <p><strong>Class:</strong> ${plannerText(data.classLevel)}</p>
+        <p><strong>Subject:</strong> ${plannerText(data.subject)}</p>
+        <p><strong>Term:</strong> ${plannerText(data.term)}</p>
+        <p><strong>Week:</strong> ${plannerText(data.weekNumber)}</p>
+        <p><strong>Theme:</strong> ${plannerText(data.theme)}</p>
+        <p><strong>Topic / Unit:</strong> ${plannerText(data.topic)}</p>
+        <p><strong>Duration:</strong> ${plannerText(data.duration)}</p>
+      `)}
+
+      ${plannerSection("2. Key Competency", `
+        <p>${plannerText(data.competency)}</p>
+      `)}
+
+      ${plannerSection("3. Learning Outcome Focus", `
+        <p>${plannerText(data.learningOutcomeFocus)}</p>
+      `)}
+
+      ${plannerSection("4. Learning Outcomes", outcomes)}
+
+      ${plannerSection("5. Generic Skills", genericSkills)}
+
+      ${plannerSection("6. Cross-Cutting Issues", crossCutting)}
+
+      ${plannerSection("7. Prerequisite Knowledge", `
+        <p>${plannerText(data.prerequisiteKnowledge)}</p>
+      `)}
+
+      ${plannerSection("8. Learning and Teaching Materials", materials)}
+
+      ${plannerSection("9. References", references)}
+
+      ${plannerSection("10. Lesson Progression", `
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Stages</th>
+                <th>Teacher Activity</th>
+                <th>Learner Activity</th>
+              </tr>
+            </thead>
+            <tbody>${progressionRows}</tbody>
+          </table>
+        </div>
+      `)}
+
+      ${plannerSection("11. Assessment Criteria", `
+        <p>${plannerText(data.assessmentCriteria)}</p>
+      `)}
+
+      ${plannerSection("12. Teacher Reflection After the Lesson", `
+        <p>${plannerText(data.teacherReflection)}</p>
+      `)}
+    </div>
+  `;
+}
+
+
+// 12. RENDER SCHEME OF WORK
+function renderSchemeOfWork(data) {
+  const weeks = Array.isArray(data.weeks) ? data.weeks : [];
+
+  const rows = weeks.map(week => `
+    <tr>
+      <td>${plannerText(week.week)}</td>
+      <td>${plannerText(week.subTopic)}</td>
+      <td>${plannerText(week.periods)}</td>
+      <td>${plannerText(week.specificCompetencies)}</td>
+      <td>${plannerText(week.contentSummary)}</td>
+      <td>${plannerText(week.methodsAndActivities)}</td>
+      <td>${plannerText(week.instructionalResources)}</td>
+      <td>${plannerText(week.assessmentMethods)}</td>
+      <td>${plannerText(week.remarks)}</td>
+    </tr>
+  `).join("");
+
+  return `
+    <div class="planner-document">
+      <h2 class="planner-document-title">NCDC SCHEME OF WORK</h2>
+
+      ${plannerSection("Scheme Details", `
+        <p><strong>School:</strong> ${plannerText(data.schoolName)}</p>
+        <p><strong>Teacher:</strong> ${plannerText(data.teacherName)}</p>
+        <p><strong>Class:</strong> ${plannerText(data.classLevel)}</p>
+        <p><strong>Subject:</strong> ${plannerText(data.subject)}</p>
+        <p><strong>Term:</strong> ${plannerText(data.term)}</p>
+        <p><strong>Theme:</strong> ${plannerText(data.theme)}</p>
+        <p><strong>Topic / Unit:</strong> ${plannerText(data.topic)}</p>
+        <p><strong>Number of Weeks:</strong> ${plannerText(data.numWeeks)}</p>
+      `)}
+
+      ${plannerSection("General Competency", `
+        <p>${plannerText(data.generalCompetency)}</p>
+      `)}
+
+      ${plannerSection("Weekly Scheme of Work", `
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Week</th>
+                <th>Sub-Topic</th>
+                <th>Periods</th>
+                <th>Competencies</th>
+                <th>Content Summary</th>
+                <th>Methods / Activities</th>
+                <th>Resources</th>
+                <th>Assessment</th>
+                <th>Remarks</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      `)}
+    </div>
+  `;
+}
+
+
+// 13. GENERATE AND DISPLAY DOCUMENT
+document.getElementById("publicPlannerForm").addEventListener(
+  "submit",
+  async function(event) {
+    event.preventDefault();
+
+    const docType = document.getElementById("guestDocType").value;
+    const schoolName = document.getElementById("guestSchoolName").value.trim();
+    const teacherName = document.getElementById("guestTeacherName").value.trim();
+    const classLevel = document.getElementById("guestClass").value;
+    const subject = document.getElementById("guestSubject").value;
+    const term = document.getElementById("guestTerm").value;
+    const theme = document.getElementById("guestTheme").value.trim();
+    const topic = document.getElementById("guestTopic").value.trim();
+    const duration = document.getElementById("guestDuration").value;
+   const lessonDateEl = document.getElementById("guestDate");
+const startTimeEl = document.getElementById("guestStartTime");
+const endTimeEl = document.getElementById("guestEndTime");
+
+const lessonDate = lessonDateEl ? lessonDateEl.value : "";
+const startTime = startTimeEl ? startTimeEl.value : "";
+const endTime = endTimeEl ? endTimeEl.value : "";
+    if (!schoolName || !teacherName || !classLevel || !subject || !topic) {
+      alert("Please complete the required school, teacher, class, subject and topic fields.");
+      return;
+    }
+
+    const payload = {
+      schoolName,
+      teacherName,
+      classLevel,
+      subject,
+      term,
+      theme,
+      topic,
+      duration,
+      lessonDate,
+      startTime,
+      endTime
+    };
+
+    let endpoint;
+
+    if (docType === "lesson_plan") {
+      const weekNumber = document.getElementById("weekNumber").value;
+
+      if (!weekNumber) {
+        alert("Please select the lesson week.");
+        return;
+      }
+
+      payload.weekNumber = weekNumber;
+      endpoint = "/api/planner/generate-lesson-plan";
+    } else if (docType === "scheme_of_work") {
+      const numWeeks = document.getElementById("numWeeks").value;
+
+      if (!numWeeks) {
+        alert("Please select the number of weeks for your scheme.");
+        return;
+      }
+
+      payload.numWeeks = numWeeks;
+      endpoint = "/api/planner/generate-scheme";
+    } else {
+      alert("Please select a valid document type.");
+      return;
+    }
+
+    const previewCard = document.getElementById("previewCard");
+    const previewContent = document.getElementById("previewContent");
+    const submitButton = this.querySelector('button[type="submit"]');
+
+    previewCard.style.display = "block";
+    previewContent.contentEditable = "false";
+    previewContent.style.outline = "none";
+
+    previewContent.innerHTML =
+      "<p style='padding:20px;text-align:center;'>Generating your NCDC document. Please wait...</p>";
+
+    const oldToolbar = document.getElementById("plannerExportToolbar");
+    if (oldToolbar) oldToolbar.remove();
+
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.textContent = "Generating...";
+    }
+
+    previewCard.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+
+    try {
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(
+          result.details || result.error || "Failed to generate document."
+        );
+      }
+
+      const data = result.data || {};
+
+      previewContent.innerHTML = docType === "lesson_plan"
+        ? renderLessonPlan(data)
+        : renderSchemeOfWork(data);
+
+      createPlannerToolbar();
+
+      document.getElementById("paymentNotice").textContent =
+        "Document generated. You can edit, download or print it below.";
+
+    } catch (error) {
+      console.error("Teacher Planner generation error:", error);
+
+      previewContent.innerHTML = `
+        <p style="color:#dc2626;">
+          <strong>Document generation failed.</strong><br>
+          ${plannerText(error.message)}
+        </p>
+        <p>Please check your internet connection and server terminal,
+        then try again.</p>
+      `;
+
+      const toolbar = document.getElementById("plannerExportToolbar");
+      if (toolbar) toolbar.remove();
+
+    } finally {
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.textContent = "Generate Free Preview";
+      }
+    }
+  }
+);
+</script>
+</body>
+</html>
+  

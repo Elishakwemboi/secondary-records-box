@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Class Teacher Dashboard</title>
+  <style>
+    * { box-sizing: border-box; font-family: Arial, sans-serif; }
+    body { display: flex; margin: 0; min-height: 100vh; background-color: #f4f6f9; }
+    
+    /* Sidebar Layout */
+    .sidebar { width: 260px; background: #1e293b; color: #fff; padding: 20px 0; flex-shrink: 0; }
+    .sidebar h2 { text-align: center; font-size: 1.2rem; border-bottom: 1px solid #334155; padding-bottom: 15px; margin-bottom: 20px; }
+    .nav-btn { display: block; width: 100%; padding: 12px 20px; background: none; border: none; color: #cbd5e1; text-align: left; cursor: pointer; font-size: 0.95rem; }
+    .nav-btn:hover, .nav-btn.active { background: #2563eb; color: #fff; }
+
+    /* Main Content & Header */
+    .main-wrapper { flex: 1; display: flex; flex-direction: column; }
+    .header { background: #fff; padding: 15px 30px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+    .header-titles h1 { margin: 0; font-size: 1.4rem; color: #0f172a; }
+    .header-titles p { margin: 4px 0 0 0; font-size: 0.9rem; color: #64748b; }
+    .content { padding: 30px; flex: 1; }
+
+    /* Cards & Tables */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 25px; }
+    .stat-card { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .stat-card h4 { margin: 0; color: #64748b; font-size: 0.85rem; }
+    .stat-card div { font-size: 1.8rem; font-weight: bold; margin-top: 8px; color: #0f172a; }
+    
+    .panel { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; }
+    .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border: 1px solid #e2e8f0; padding: 10px; text-align: left; font-size: 0.9rem; }
+    th { background: #f8fafc; }
+
+    /* Action Buttons */
+    .btn { padding: 8px 14px; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem; background: #2563eb; color: white; }
+    .btn-secondary { background: #64748b; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* Print Formatting */
+    @media print {
+      .sidebar, .header, .btn, .nav-btn, .no-print { display: none !important; }
+      body, .main-wrapper, .content { background: #fff; margin: 0; padding: 0; width: 100%; }
+      .panel { box-shadow: none; border: none; padding: 0; }
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar Navigation -->
+  <div class="sidebar">
+    <h2>Class Teacher Portal</h2>
+    <button class="nav-btn active" onclick="switchTab('overview')">📊 Class Overview</button>
+    <button class="nav-btn" onclick="switchTab('classlist')">📋 Class List & Print</button>
+    <button class="nav-btn" onclick="switchTab('manageClass')">✏️ Manage Class</button>
+    <button class="nav-btn" onclick="switchTab('reportCards')">📑 Manage Report Cards</button>
+    <button class="nav-btn" onclick="goTosubjectTeacherDashboard()">
+  📚 Subject Teacher Portal ➔
+</button>
+    <button id="logoutBtn" class="nav-btn btn-logout" onclick="handleLogout()">🚪 Logout</button>
+  </div>
+
+  <!-- Main Container -->
+  <div class="main-wrapper">
+    
+    <!-- Header displaying School Name and Class Teacher(s) -->
+    <header class="header">
+      <div class="header-titles">
+        <h1 id="headerSchoolName">School Name Loading...</h1>
+        <p><strong>Class Teacher(s):</strong> <span id="headerTeacherNames">Loading...</span> | <strong>Class:</strong> <span id="headerClassName">Loading...</span></p>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <!-- 1. CLASS OVERVIEW TAB -->
+      <div id="tab-overview" class="tab-content active">
+        <h3>Class Overview Summary</h3>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <h4>TOTAL STUDENTS</h4>
+            <div id="statTotal">0</div>
+          </div>
+          <div class="stat-card">
+            <h4>BOYS</h4>
+            <div id="statBoys">0</div>
+          </div>
+          <div class="stat-card">
+            <h4>GIRLS</h4>
+            <div id="statGirls">0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. CLASS LIST & PRINTS TAB -->
+      <div id="tab-classlist" class="tab-content">
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Class List (Alphabetical Order)</h3>
+            <button class="btn" onclick="window.print()">🖨️ Print Class List</button>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>LIN / ID</th>
+                <th>Full Name</th>
+                <th>Gender</th>
+              </tr>
+            </thead>
+            <tbody id="alphabeticalRosterBody">
+              <!-- Sorted rows inserted here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 3. MANAGE CLASS TAB -->
+      <div id="tab-manageClass" class="tab-content">
+        <div class="panel">
+          <h3>Manage Student Information & Performance</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>LIN / ID</th>
+                <th>Full Name</th>
+                <th>Gender</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="manageClassBody">
+              <!-- Action rows inserted here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 4. MANAGE REPORT CARDS TAB -->
+      <div id="tab-reportCards" class="tab-content">
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Report Cards Management</h3>
+            <button class="btn" onclick="bulkPrintReportCards()">🖨️ Bulk Print All Report Cards</button>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>LIN / ID</th>
+                <th>Full Name</th>
+                <th>Report Card Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="reportCardsBody">
+              <!-- Report card action rows inserted here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+ <script>
+ 
+  let currentStudents = [];
+
+  // 1. Session Verification Function
+  function checkSession() {
+    const rawUser = localStorage.getItem('user');
+    const user = rawUser ? JSON.parse(rawUser) : null;
+    const role = user?.role ? user.role.toString().trim().toLowerCase().replace('_', ' ') : '';
+
+    if (!user || (role !== 'class teacher' && role !== 'class_teacher' && role !== 'teacher')) {
+      alert("Session expired or unauthorized access. Please log in.");
+      window.location.href = '/login.html';
+      return null;
+    }
+    return user;
+  }
+
+  // Helper to extract active parameters from URL, user object, or localStorage
+  function getActiveParams() {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const urlParams = new URLSearchParams(window.location.search);
+
+    const schoolId = urlParams.get('schoolId') 
+                  || user.school_id 
+                  || user.schoolId 
+                  || localStorage.getItem('schoolId') 
+                  || '';
+
+    const teacherId = urlParams.get('teacherId') 
+                   || user.id 
+                   || user.teacher_id 
+                   || user.teacherId 
+                   || localStorage.getItem('teacherId') 
+                   || '';
+
+    let rawClassId = urlParams.get('classId') 
+                  || user.class_id 
+                  || user.classId 
+                  || user.assigned_class_id 
+                  || user.assignedClassId 
+                  || user.class 
+                  || localStorage.getItem('classId') 
+                  || '';
+
+    let classId = String(rawClassId).replace(/^:/, '').trim();
+    if (classId === 'null' || classId === 'undefined') classId = '';
+
+    return { schoolId, teacherId, classId, user };
+  }
+
+  // 2. Tab Switcher
+  function switchTab(tabName) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+    
+    const targetTab = document.getElementById(`tab-${tabName}`);
+    if (targetTab) targetTab.classList.add('active');
+    if (window.event && window.event.currentTarget) {
+      window.event.currentTarget.classList.add('active');
+    }
+  }
+
+  // 3. Initialize Dashboard
+  async function initDashboard(schoolId, teacherId, classId) {
+    const { user } = getActiveParams();
+    const headerSchool = document.getElementById('headerSchoolName');
+    const headerTeacher = document.getElementById('headerTeacherNames');
+    const headerClass = document.getElementById('headerClassName');
+
+    try {
+      let infoUrl = `/api/schools/${schoolId}/class-teacher-info?teacherId=${teacherId}`;
+      if (classId && classId !== 'null' && classId !== 'undefined' && classId !== '') {
+        infoUrl += `&classId=${classId}`;
+      }
+
+      const detailsRes = await fetch(infoUrl);
+      let details = {};
+      if (detailsRes.ok) {
+        details = await detailsRes.json();
+      }
+
+      // Populate DOM Headers with robust fallbacks from localStorage user object
+      if (headerSchool) {
+        headerSchool.textContent = details.schoolName || details.school_name || user.school_name || user.schoolName || "School Portal";
+      }
+      if (headerTeacher) {
+        headerTeacher.textContent = details.teacherNames || details.teacher_name || user.full_name || user.name || "Unassigned";
+      }
+      if (headerClass) {
+        headerClass.textContent = details.className || details.class_name || user.class_name || user.assigned_class_name || user.className || "No Assigned Class";
+      }
+
+      // Resolve active class ID
+      const activeClassId = (classId && classId !== 'null' && classId !== 'undefined' && classId !== '') 
+        ? classId 
+        : (details.classId || details.class_id || user.class_id || user.assigned_class_id);
+
+      // Fetch Class Students
+      if (activeClassId) {
+        const studentsRes = await fetch(`/api/schools/${schoolId}/classes/${activeClassId}/students`);
+        if (studentsRes.ok) {
+          currentStudents = await studentsRes.json();
+        } else {
+          currentStudents = [];
+        }
+      } else {
+        currentStudents = [];
+      }
+
+      if (!Array.isArray(currentStudents)) {
+        currentStudents = [];
+      }
+
+      // Sort students alphabetically
+      currentStudents.sort((a, b) => (a.full_name || '').localeCompare(b.full_name || ''));
+
+      renderOverview();
+      renderAlphabeticalRoster();
+      renderManageClass();
+      renderReportCards();
+
+    } catch (err) {
+      console.error("Error populating dashboard:", err);
+      if (headerSchool) headerSchool.textContent = user.school_name || "School Portal";
+      if (headerTeacher) headerTeacher.textContent = user.full_name || "Unassigned";
+      if (headerClass) headerClass.textContent = user.class_name || user.assigned_class_name || "No Assigned Class";
+    }
+  }
+
+  // Navigation and Actions
+  function goTosubjectTeacherDashboard() {
+    const { schoolId, teacherId } = getActiveParams();
+    window.location.href = `/teacher-dashboard.html?schoolId=${schoolId}&teacherId=${teacherId}`;
+  }
+
+  function handleLogout() {
+    localStorage.clear();
+    sessionStorage.clear();
+    window.location.href = '/login.html';
+  }
+
+  // Render Functions
+  function renderOverview() {
+    const total = currentStudents.length;
+    const boys = currentStudents.filter(s => ['male', 'boy'].includes((s.gender || '').toLowerCase())).length;
+    const girls = currentStudents.filter(s => ['female', 'girl'].includes((s.gender || '').toLowerCase())).length;
+
+    const statTotal = document.getElementById('statTotal');
+    const statBoys = document.getElementById('statBoys');
+    const statGirls = document.getElementById('statGirls');
+
+    if (statTotal) statTotal.textContent = total;
+    if (statBoys) statBoys.textContent = boys;
+    if (statGirls) statGirls.textContent = girls;
+  }
+
+  function renderAlphabeticalRoster() {
+    const tbody = document.getElementById('alphabeticalRosterBody');
+    if (!tbody) return;
+
+    tbody.innerHTML = currentStudents.map((st, index) => `
+      <tr>
+        <td>${index + 1}</td>
+        <td>${st.lin || st.id}</td>
+        <td>${st.full_name}</td>
+        <td>${st.gender || 'N/A'}</td>
+      </tr>
+    `).join('');
+  }
+
+  function renderManageClass() {
+    const tbody = document.getElementById('manageClassBody');
+    if (!tbody) return;
+
+    tbody.innerHTML = currentStudents.map(st => `
+      <tr>
+        <td>${st.lin || st.id}</td>
+        <td>${st.full_name}</td>
+        <td>${st.gender || 'N/A'}</td>
+        <td>
+          <button class="btn" onclick="editStudentName(${st.id}, '${st.full_name}')">Edit Name</button>
+          <button class="btn" onclick="manageMarks(${st.id})">Marks</button>
+          <button class="btn" onclick="manageAttendance(${st.id})">Attendance</button>
+          <button class="btn" onclick="manageConductRemark(${st.id})">Conduct & Remarks</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function renderReportCards() {
+    const tbody = document.getElementById('reportCardsBody');
+    if (!tbody) return;
+
+    tbody.innerHTML = currentStudents.map(st => `
+      <tr>
+        <td>${st.lin || st.id}</td>
+        <td>${st.full_name}</td>
+        <td>Ready</td>
+        <td>
+          <button class="btn" onclick="printSingleReportCard(${st.id})">Print Report Card</button>
+          <button class="btn btn-secondary" onclick="editReportCardRemarks(${st.id})">Edit Remarks</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function editStudentName(id, currentName) {
+    const newName = prompt("Update student full name:", currentName);
+    if (newName) {
+      fetch(`/api/students/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ full_name: newName })
+      }).then(() => location.reload());
+    }
+  }
+
+  function manageMarks(id) { alert("Open Subject Marks Modal/Editor for student ID: " + id); }
+  function manageAttendance(id) { alert("Open Attendance Editor for student ID: " + id); }
+  function manageConductRemark(id) { alert("Open Conduct & Remarks Editor for student ID: " + id); }
+  function printSingleReportCard(id) { window.open(`/report-cards.html?studentId=${String(id).replace(/^:/, '')}`, '_blank'); }
+
+  function bulkPrintReportCards() {
+    const { classId } = getActiveParams();
+    window.open(`/report-cards.html?classId=${classId}`, '_blank');
+  }
+
+  // DOM Execution
+  document.addEventListener("DOMContentLoaded", () => {
+    const user = checkSession();
+    if (!user) return;
+
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
+
+    const { schoolId, teacherId, classId } = getActiveParams();
+
+    // Initial population from session localStorage
+    const headerSchool = document.getElementById('headerSchoolName');
+    const headerTeacher = document.getElementById('headerTeacherNames');
+    const headerClass = document.getElementById('headerClassName');
+
+    if (headerSchool) headerSchool.textContent = user.school_name || user.schoolName || "School Portal";
+    if (headerTeacher) headerTeacher.textContent = user.full_name || user.name || "Unassigned";
+    if (headerClass) headerClass.textContent = user.class_name || user.assigned_class_name || user.className || "No Assigned Class";
+
+    if (schoolId && teacherId) {
+      initDashboard(schoolId, teacherId, classId);
+    }
+  });
+</script>

@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Secondary School Box</title>
+  <style>
+    * { box-sizing: border-box; font-family: Arial, sans-serif; }
+    body {
+      background: #f4f6f9;
+      display: flex;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    /* Sidebar Styling */
+    .sidebar {
+      width: 250px;
+      background: #1e293b;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      padding: 20px 0;
+      flex-shrink: 0;
+    }
+    .sidebar-brand {
+      font-size: 1.1rem;
+      font-weight: bold;
+      text-align: center;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #334155;
+      margin-bottom: 15px;
+      color: #38bdf8;
+    }
+    .sidebar-nav {
+      display: flex;
+      flex-direction: column;
+    }
+    .sidebar-link {
+      padding: 12px 25px;
+      color: #cbd5e1;
+      text-decoration: none;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: background 0.2s;
+    }
+    .sidebar-link:hover, .sidebar-link.active {
+      background: #2563eb;
+      color: #ffffff;
+    }
+
+    /* Main Container */
+    .main-wrapper {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .login-card {
+      background: #ffffff;
+      padding: 35px 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 450px;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+    .header h1 {
+      margin: 0;
+      color: #0f172a;
+      font-size: 1.6rem;
+    }
+    .header p {
+      margin-top: 8px;
+      color: #64748b;
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+    .form-group {
+      margin-bottom: 18px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: bold;
+      color: #334155;
+      font-size: 0.88rem;
+    }
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      outline: none;
+    }
+
+    /* Password Wrapper & Toggle Icon */
+    .password-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .password-wrapper input {
+      padding-right: 45px;
+    }
+    .toggle-password {
+      position: absolute;
+      right: 10px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1.1rem;
+      color: #64748b;
+      padding: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .toggle-password:hover {
+      color: #0f172a;
+    }
+
+    .form-group input:focus, .form-group select:focus {
+      border-color: #2563eb;
+    }
+    .btn-login {
+      width: 100%;
+      padding: 12px;
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .btn-login:hover {
+      background: #1d4ed8;
+    }
+    #errorMsg {
+      margin-top: 15px;
+      color: #dc2626;
+      font-size: 0.88rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar Component -->
+  <div class="sidebar">
+    <div class="sidebar-brand">📦 Secondary School Box</div>
+    <nav class="sidebar-nav">
+      <a href="/login.html" class="sidebar-link active">🔑 Login Portal</a>
+      <a href="#" class="sidebar-link" onclick="alert('Please log in first to access help & support.')">❓ Help & Support</a>
+      <a href="#" class="sidebar-link" onclick="alert('Secondary School Box v1.0.0')">ℹ️ System Info</a>
+    </nav>
+  </div>
+
+  <!-- Main Content Area -->
+  <div class="main-wrapper">
+    <div class="login-card">
+      <div class="header">
+        <h1>Welcome to Secondary School Box</h1>
+        <p>A comprehensive management platform for multi-school administration, teaching allocations, and assessment mark tracking.</p>
+      </div>
+
+      <form id="loginForm" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label for="username">Username or Email</label>
+          <input type="text" id="username" placeholder="Enter your username or email" required>
+        </div>
+
+        <!-- Role Selection Option -->
+        <div class="form-group">
+          <label for="roleSelect">Login As Portal Role</label>
+          <select id="roleSelect" required>
+            <option value="super_admin">Super Admin</option>
+            <option value="school_admin">School Admin</option>
+            <option value="class_teacher">Class Teacher</option>
+            <option value="teacher" selected>Subject Teacher</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <label for="password" style="margin-bottom: 0;">Password</label>
+          <a href="#" onclick="openResetModal()" style="font-size: 0.8rem; color: #2563eb; text-decoration: none;">Forgot Password?</a>
+        </div>
+        <div class="password-wrapper">
+          <input type="password" id="password" placeholder="Enter your password" required>
+          <button type="button" class="toggle-password" onclick="togglePasswordVisibility()" title="Toggle password visibility">
+            <span id="eyeIcon">👁️</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- PUT THE BUTTON AND CLOSING FORM TAG HERE -->
+      <button type="submit" class="btn-login">Log In</button>
+    </form>
+
+    <div id="errorMsg"></div>
+
+<!-- Password Reset Modal -->
+<div id="resetModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; z-index:1000;">
+  <div style="background:#fff; padding:25px; border-radius:8px; width:100%; max-width:400px;">
+    <h3 style="margin-top:0; color:#0f172a;">Reset Password</h3>
+    <p style="font-size:0.88rem; color:#64748b;">Enter your registered email address and we will process your password reset request.</p>
+    
+    <form id="resetForm" onsubmit="handlePasswordReset(event)">
+      <div style="margin-bottom:15px;">
+        <label style="display:block; font-size:0.85rem; font-weight:bold; margin-bottom:5px;">Email Address</label>
+        <input type="email" id="resetEmail" placeholder="e.g. user@school.com" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px;" required>
+      </div>
+      
+      <div id="resetMsg" style="font-size:0.88rem; margin-bottom:10px;"></div>
+
+      <div style="display:flex; justify-content:flex-end; gap:10px;">
+        <button type="button" onclick="closeResetModal()" style="padding:8px 16px; background:#e2e8f0; border:none; border-radius:6px; cursor:pointer;">Cancel</button>
+        <button type="submit" style="padding:8px 16px; background:#2563eb; color:white; border:none; border-radius:6px; cursor:pointer;">Send Request</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+  <script>
+    function togglePasswordVisibility() {
+      const passwordInput = document.getElementById('password');
+      const eyeIcon = document.getElementById('eyeIcon');
+
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        eyeIcon.textContent = '🙈';
+      } else {
+        passwordInput.type = 'password';
+        eyeIcon.textContent = '👁️';
+      }
+    }
+
+   async function handleLogin(event) {
+  event.preventDefault();
+
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+  const selectedRole = document.getElementById('roleSelect').value;
+  const errorMsg = document.getElementById('errorMsg');
+
+  errorMsg.innerText = '';
+
+  try {
+    const response = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        username: username,
+        password: password,
+        requested_role: selectedRole
+      })
+    });
+
+    const data = await response.json();
+
+    if (response.ok && data.user) {
+      // Extract properties safely from backend API response
+      const classId = data.user.class_id || data.user.assigned_class_id || '';
+      const className = data.user.class_name || data.user.assigned_class_name || '';
+
+      const sessionUser = {
+        id: data.user.id || data.user.teacher_id,
+        teacher_id: data.user.id || data.user.teacher_id,
+        full_name: data.user.full_name,
+        role: selectedRole,
+        school_id: data.user.school_id,
+        school_name: data.user.school_name,
+        class_id: classId,
+        class_name: className
+      };
+
+      // Set complete user object & individual fallback keys
+      localStorage.setItem('user', JSON.stringify(sessionUser));
+      localStorage.setItem('schoolId', sessionUser.school_id || '');
+      localStorage.setItem('teacherId', sessionUser.id || '');
+      localStorage.setItem('classId', classId);
+
+      // Redirect based on selected role
+      switch (selectedRole) {
+        case 'super_admin':
+          window.location.href = '/super-admin.html';
+          break;
+        case 'school_admin':
+          window.location.href = '/dashboard.html';
+          break;
+        case 'class_teacher':
+          window.location.href = '/class-teacher-dashboard.html';
+          break;
+        case 'teacher':
+        default:
+          window.location.href = '/teacher-dashboard.html';
+          break;
+      }
+    } else {
+      errorMsg.innerText = data.error || data.message || 'Invalid email or password';
+    }
+  } catch (err) {
+    console.error('Login error:', err);
+    errorMsg.innerText = 'Unable to connect to server. Please try again.';
+  }
+}
+    function openResetModal() {
+  document.getElementById('resetModal').style.display = 'flex';
+  document.getElementById('resetMsg').innerText = '';
+}
+
+function closeResetModal() {
+  document.getElementById('resetModal').style.display = 'none';
+}
+
+async function handlePasswordReset(event) {
+  event.preventDefault();
+  const email = document.getElementById('resetEmail').value.trim();
+  const resetMsg = document.getElementById('resetMsg');
+
+  resetMsg.style.color = '#2563eb';
+  resetMsg.innerText = 'Processing request...';
+
+  try {
+    const response = await fetch('/api/forgot-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      resetMsg.style.color = '#16a34a';
+      resetMsg.innerText = data.message || 'Reset request sent successfully! Contact system admin or check your email.';
+      setTimeout(() => closeResetModal(), 3000);
+    } else {
+      resetMsg.style.color = '#dc2626';
+      resetMsg.innerText = data.error || 'Failed to request password reset.';
+    }
+  } catch (err) {
+    console.error('Password reset error:', err);
+    resetMsg.style.color = '#dc2626';
+    resetMsg.innerText = 'Server error. Please try again later.';
+  }
+}
+  </script>
+</body>
+</html>

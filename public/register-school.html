@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>School Registration & Setup</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 30px; background: #f4f6f9; }
+    .container { max-width: 600px; margin: 0 auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    h2 { margin-top: 0; color: #333; }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 5px; font-weight: bold; }
+    input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+    
+    /* Password Toggle Wrapper Styling */
+    .password-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .password-wrapper input {
+      padding-right: 75px;
+    }
+    .toggle-password {
+      position: absolute;
+      right: 5px;
+      background: none;
+      border: none;
+      color: #007bff;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      padding: 5px 8px;
+      width: auto;
+    }
+    .toggle-password:hover {
+      background: none;
+      color: #0056b3;
+      text-decoration: underline;
+    }
+
+    button[type="submit"] { background: #007bff; color: white; padding: 12px; border: none; border-radius: 4px; width: 100%; font-size: 16px; cursor: pointer; margin-top: 10px; }
+    button[type="submit"]:hover { background: #0056b3; }
+    #message { margin-top: 15px; font-weight: bold; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Register New School</h2>
+    <form id="schoolForm">
+      <!-- Original School Inputs -->
+      <div class="form-group">
+        <label>School Name:</label>
+        <input type="text" id="schoolName" required placeholder="e.g. St. Mary's Secondary School">
+      </div>
+      <div class="form-group">
+        <label>Center Number:</label>
+        <input type="text" id="centerNumber" required placeholder="e.g. U0001">
+      </div>
+
+      <!-- New Admin Inputs -->
+      <div class="form-group">
+        <label>Admin Name:</label>
+        <input type="text" id="adminName" required placeholder="e.g. John Doe">
+      </div>
+
+      <div class="form-group">
+        <label>Admin Email:</label>
+        <input type="email" id="adminEmail" required placeholder="e.g. admin@school.com">
+      </div>
+
+      <div class="form-group">
+        <label>Admin Phone Number:</label>
+        <input type="tel" id="adminPhone" required placeholder="e.g. +256 700 000 000">
+      </div>
+
+      <div class="form-group">
+        <label>Admin Password:</label>
+        <div class="password-wrapper">
+          <input type="password" id="adminPassword" required placeholder="Enter secure password">
+          <button type="button" class="toggle-password" id="togglePasswordBtn">Show</button>
+        </div>
+      </div>
+
+      <button type="submit">Register School</button>
+    </form>
+    <div id="message"></div>
+  </div>
+
+  <script>
+    // Password Visibility Toggle Logic
+    const togglePasswordBtn = document.getElementById('togglePasswordBtn');
+    const adminPasswordInput = document.getElementById('adminPassword');
+
+    togglePasswordBtn.addEventListener('click', () => {
+      const isPassword = adminPasswordInput.getAttribute('type') === 'password';
+      adminPasswordInput.setAttribute('type', isPassword ? 'text' : 'password');
+      togglePasswordBtn.textContent = isPassword ? 'Hide' : 'Show';
+    });
+
+    // Form Submission Logic
+    document.getElementById('schoolForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const name = document.getElementById('schoolName').value;
+      const center_number = document.getElementById('centerNumber').value;
+      const admin_name = document.getElementById('adminName').value;
+      const admin_email = document.getElementById('adminEmail').value;
+      const admin_phone = document.getElementById('adminPhone').value;
+      const admin_password = document.getElementById('adminPassword').value;
+
+      try {
+        const res = await fetch('/api/schools', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            name, 
+            center_number,
+            admin_name,
+            admin_email,
+            admin_phone,
+            admin_password
+          })
+        });
+        
+        const data = await res.json();
+        const messageDiv = document.getElementById('message');
+
+        if (res.ok) {
+          messageDiv.style.color = 'green';
+          messageDiv.innerHTML = `
+            School registered successfully! (ID: ${data.schoolId || data.id})<br>
+            <a href="/login.html" style="color: #007bff; text-decoration: underline; font-weight: bold; margin-top: 10px; display: inline-block;">
+              Proceed to Login Portal &rarr;
+            </a>
+          `;
+          document.getElementById('schoolForm').reset();
+          
+          // Reset password toggle button state
+          adminPasswordInput.setAttribute('type', 'password');
+          togglePasswordBtn.textContent = 'Show';
+        } else {
+          throw new Error(data.error || 'Failed to register school.');
+        }
+      } catch (err) {
+        document.getElementById('message').style.color = 'red';
+        document.getElementById('message').innerText = `Error: ${err.message}`;
+      }
+    });
+  </script>
+</body>
+</html>

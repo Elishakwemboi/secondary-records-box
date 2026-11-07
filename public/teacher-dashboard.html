@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teacher Dashboard</title>
+  <style>
+    * { box-sizing: border-box; font-family: Arial, sans-serif; }
+    body { display: flex; margin: 0; min-height: 100vh; background-color: #f4f6f9; }
+    
+    /* Sidebar Navigation Layout */
+    .sidebar { width: 260px; background: #1e293b; color: #fff; padding: 20px 0; flex-shrink: 0; display: flex; flex-direction: column; justify-content: space-between; }
+    .sidebar-top { width: 100%; }
+    .sidebar h2 { text-align: center; font-size: 1.2rem; border-bottom: 1px solid #334155; padding-bottom: 15px; margin-bottom: 20px; }
+    .nav-btn { display: block; width: 100%; padding: 12px 20px; background: none; border: none; color: #cbd5e1; text-align: left; cursor: pointer; font-size: 0.95rem; }
+    .nav-btn:hover, .nav-btn.active { background: #2563eb; color: #fff; }
+
+    /* Sidebar Logout Button */
+    .sidebar-bottom { padding: 15px; border-top: 1px solid #334155; }
+    .sidebar-logout-btn { width: 100%; padding: 10px; background: #dc3545; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+    .sidebar-logout-btn:hover { background: #c82333; }
+
+    /* Main Area & Header Layout */
+    .main-wrapper { flex: 1; display: flex; flex-direction: column; }
+    .header { background: #fff; padding: 15px 30px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+    .header h2 { margin: 0; font-size: 1.4rem; color: #0f172a; }
+    .content { padding: 30px; flex: 1; }
+
+    /* Panel and Form Elements */
+    .section { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; }
+    .form-inline { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 10px; margin-bottom: 15px; }
+    input, select, button { padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+    button { background: #28a745; color: white; border: none; cursor: pointer; font-weight: bold; }
+    button:hover { opacity: 0.9; }
+
+    /* Table Styles */
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 13px; }
+    th { background-color: #f2f2f2; text-align: center; }
+    .text-center { text-align: center; }
+
+    /* Tab Display Switching */
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar Navigation -->
+  <div class="sidebar">
+    <div class="sidebar-top">
+      <h2>Teacher Portal</h2>
+      <button class="nav-btn active" onclick="switchTab('allocations', this)">📚 My Allocations</button>
+      <button class="nav-btn" onclick="switchTab('students', this)">👥 Class Students</button>
+      <button class="nav-btn" onclick="switchTab('marks', this)">📝 Record Assessment Marks</button>
+    </div>
+    
+    <div class="sidebar-bottom">
+      <button class="sidebar-logout-btn" onclick="logout()">🚪 Logout</button>
+    </div>
+  </div>
+
+  <!-- Main Container -->
+  <div class="main-wrapper">
+    
+    <!-- Top Header -->
+    <div class="header">
+      <div>
+        <h2 id="dashboardTitle">Teacher Portal</h2>
+        <p id="schoolSubheading" style="margin:5px 0 0 0; color:#555; font-weight:bold;"></p>
+        <p id="welcomeText" style="margin: 4px 0 0 0; color: #6c757d; font-size:0.9rem;"></p>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- TAB 1: MY ALLOCATIONS -->
+      <div id="tab-allocations" class="tab-content active">
+        <div class="section">
+          <h3>My Teaching Allocations</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Class</th>
+                <th>Subject</th>
+              </tr>
+            </thead>
+            <tbody id="allocationsBody">
+              <tr><td colspan="2">Loading allocations...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB 2: CLASS STUDENTS -->
+      <div id="tab-students" class="tab-content">
+        <div class="section">
+          <h3>Class Students</h3>
+          <div class="form-inline">
+            <select id="classSelect" onchange="loadClassStudents()">
+              <option value="">Select Class to View Students...</option>
+            </select>
+          </div>
+          <ul id="studentList" style="margin-top: 15px;">
+            <li>Select a class to view enrolled students.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- TAB 3: RECORD ASSESSMENT MARKS -->
+      <div id="tab-marks" class="tab-content">
+        <div class="section">
+          <h3>Record Assessment Marks</h3>
+          <div class="form-inline">
+            <select id="markClassSelect" onchange="loadClassStudentsForMarks()">
+              <option value="">Select Class...</option>
+            </select>
+
+            <select id="markSubjectSelect">
+              <option value="">Select Subject...</option>
+            </select>
+
+            <select id="termSelect">
+              <option value="1">Term 1</option>
+              <option value="2">Term 2</option>
+              <option value="3">Term 3</option>
+            </select>
+
+           <select id="assessmentTypeSelect" onchange="updateMaxScoreLabel()">
+  <option value="A1" data-max="3">Average Chapter Assessment (A1 / Out of 3)</option>
+  <option value="A2" data-max="3">Average Chapter Assessment (A2 / Out of 3)</option>
+  <option value="A3" data-max="3">Average Chapter Assessment (A3 / Out of 3)</option>
+  <option value="Formative" data-max="20">Formative Total (Out of 20)</option>
+  <option value="Summative" data-max="80">Summative / End of Term (Out of 80)</option>
+</select> 
+
+            <div>
+              <label style="font-size: 13px; font-weight: bold;">Marked Out Of:</label>
+              <input type="number" id="markedOutOfInput" value="100" style="width: 80px;" min="1" oninput="recalculateAllScores()" />
+            </div>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 60px;">S/N</th>
+                <th>Student Name</th>
+                <th style="width: 140px;">Raw Score</th>
+                <th style="width: 160px;">Converted Score (<span id="targetMaxDisplay">80</span>)</th>
+              </tr>
+            </thead>
+            <tbody id="marksTableBody">
+              <tr><td colspan="4" class="text-center">Select a class to load students.</td></tr>
+            </tbody>
+          </table>
+
+         <div style="display: flex; gap: 10px; margin-top: 15px; align-items: center;">
+  <button onclick="submitAssessmentMarks()" style="background: #28a745;">💾 Save Marks</button>
+  <button onclick="loadExistingMarks()" style="background: #007bff;">📂 Load Existing Marks</button>
+  <div id="markMsg" style="font-weight: bold; margin-left: 10px;"></div>
+</div> 
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    function switchTab(tabName, btnElement) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+      
+      document.getElementById(`tab-${tabName}`).classList.add('active');
+      btnElement.classList.add('active');
+    }
+
+    const rawUser = localStorage.getItem('user');
+    const user = rawUser ? JSON.parse(rawUser) : null;
+    const role = user?.role ? user.role.toString().trim().toLowerCase().replace('_', ' ') : '';
+
+    if (!user || (role !== 'teacher' && role !== 'class teacher' && role !== 'subject teacher')) {
+      alert("Access denied. Please log in as a teacher.");
+      window.location.href = '/login.html';
+    } else {
+      document.getElementById('welcomeText').innerText = `Logged in as: ${user.full_name}`;
+      loadTeacherAllocations();
+    }
+
+    function logout() {
+      localStorage.removeItem('user');
+      window.location.href = '/login.html';
+    }
+
+    async function loadTeacherAllocations() {
+      try {
+        const schoolId = user.school_id || 1;
+        const res = await fetch(`/api/schools/${schoolId}/assignments`);
+        if (!res.ok) throw new Error(`Server error: ${res.statusText}`);
+
+        const assignments = await res.json();
+        const myAssignments = assignments.filter(a => {
+          const matchId = Number(a.teacher_id) === Number(user.id);
+          const matchName = a.teacher_name && user.full_name && 
+                            a.teacher_name.trim().toLowerCase() === user.full_name.trim().toLowerCase();
+          return matchId || matchName;
+        });
+
+        const tbody = document.getElementById('allocationsBody');
+        const classSelect = document.getElementById('classSelect');
+        const markClassSelect = document.getElementById('markClassSelect');
+        const markSubjectSelect = document.getElementById('markSubjectSelect');
+
+        if (!myAssignments || myAssignments.length === 0) {
+          if (tbody) tbody.innerHTML = '<tr><td colspan="2">No classes assigned yet. Contact School Admin.</td></tr>';
+          return;
+        }
+
+        if (tbody) {
+          tbody.innerHTML = myAssignments.map(a => `
+            <tr>
+              <td><strong>${a.class_name || 'N/A'}</strong></td>
+              <td>${a.subject_name || 'N/A'}</td>
+            </tr>
+          `).join('');
+        }
+
+        classSelect.innerHTML = '<option value="">Select Class to View Students...</option>';
+        markClassSelect.innerHTML = '<option value="">Select Class...</option>';
+        markSubjectSelect.innerHTML = '<option value="">Select Subject...</option>';
+
+        const uniqueClasses = new Map();
+        const uniqueSubjects = new Map();
+
+        myAssignments.forEach(a => {
+          const classId = a.class_id;
+          const subjectId = a.subject_id;
+
+          if (a.class_name && classId && !uniqueClasses.has(classId)) {
+            uniqueClasses.set(classId, a.class_name);
+            classSelect.innerHTML += `<option value="${classId}" data-name="${a.class_name}">${a.class_name}</option>`;
+            markClassSelect.innerHTML += `<option value="${classId}" data-name="${a.class_name}">${a.class_name}</option>`;
+          }
+
+          if (a.subject_name && subjectId && !uniqueSubjects.has(subjectId)) {
+            uniqueSubjects.set(subjectId, a.subject_name);
+            markSubjectSelect.innerHTML += `<option value="${subjectId}">${a.subject_name}</option>`;
+          }
+        });
+      } catch (err) {
+        console.error("Failed to load allocations:", err);
+      }
+    }
+
+    async function loadClassStudents() {
+      const classSelectEl = document.getElementById('classSelect');
+      const selectedClassId = classSelectEl.value;
+      const studentList = document.getElementById('studentList');
+
+      if (!selectedClassId) {
+        studentList.innerHTML = '<li>Select a class to view enrolled students.</li>';
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/schools/${user.school_id}/students`);
+        const allStudents = await res.json();
+        
+        const filteredStudents = allStudents.filter(s => String(s.class_id || '') === String(selectedClassId));
+        filteredStudents.sort((a, b) => (a.full_name || '').localeCompare(b.full_name || ''));
+
+        if (filteredStudents.length === 0) {
+          studentList.innerHTML = `<li>No students found in this class.</li>`;
+          return;
+        }
+
+        studentList.innerHTML = filteredStudents.map((s, idx) => `
+          <li><strong>${idx + 1}. ${s.full_name}</strong> ${s.lin ? `(LIN: ${s.lin})` : ''}</li>
+        `).join('');
+      } catch (err) {
+        studentList.innerHTML = '<li>Error loading students.</li>';
+      }
+    }
+
+    function updateMaxScoreLabel() {
+      const select = document.getElementById('assessmentTypeSelect');
+      const selectedOption = select.options[select.selectedIndex];
+      const maxTarget = selectedOption.getAttribute('data-max') || '80';
+      document.getElementById('targetMaxDisplay').innerText = maxTarget;
+      recalculateAllScores();
+    }
+
+    async function loadClassStudents() {
+      const classSelectEl = document.getElementById('classSelect');
+      const selectedOption = classSelectEl.options[classSelectEl.selectedIndex];
+      const selectedClassId = selectedOption ? selectedOption.value : '';
+      const selectedClassName = selectedOption ? (selectedOption.getAttribute('data-name') || selectedOption.text).trim().toLowerCase() : '';
+      const studentList = document.getElementById('studentList');
+
+      if (!selectedClassId) {
+        studentList.innerHTML = '<li>Select a class to view enrolled students.</li>';
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/schools/${user.school_id}/students`);
+        const allStudents = await res.json();
+        
+        const filteredStudents = allStudents.filter(s => {
+          const sClassId = String(s.class_id || '');
+          const sClassName = String(s.class_name || '').trim().toLowerCase();
+          return sClassId === String(selectedClassId) || sClassName === selectedClassName;
+        });
+
+        filteredStudents.sort((a, b) => (a.full_name || '').localeCompare(b.full_name || ''));
+
+        if (filteredStudents.length === 0) {
+          studentList.innerHTML = `<li>No students found in this class.</li>`;
+          return;
+        }
+
+        studentList.innerHTML = filteredStudents.map((s, idx) => `
+          <li><strong>${idx + 1}. ${s.full_name}</strong> ${s.lin ? `(LIN: ${s.lin})` : ''}</li>
+        `).join('');
+      } catch (err) {
+        studentList.innerHTML = '<li>Error loading students.</li>';
+      }
+    }
+
+    async function loadClassStudentsForMarks() {
+      const classSelectEl = document.getElementById('markClassSelect');
+      const selectedOption = classSelectEl.options[classSelectEl.selectedIndex];
+      const selectedClassId = selectedOption ? selectedOption.value : '';
+      const selectedClassName = selectedOption ? (selectedOption.getAttribute('data-name') || selectedOption.text).trim().toLowerCase() : '';
+      const tbody = document.getElementById('marksTableBody');
+
+      if (!selectedClassId) {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center">Select a class to load students.</td></tr>';
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/schools/${user.school_id}/students`);
+        const allStudents = await res.json();
+        
+        const filteredStudents = allStudents.filter(s => {
+          const sClassId = String(s.class_id || '');
+          const sClassName = String(s.class_name || '').trim().toLowerCase();
+          return sClassId === String(selectedClassId) || sClassName === selectedClassName;
+        });
+        
+        // Sort students alphabetically by full name
+        filteredStudents.sort((a, b) => (a.full_name || '').localeCompare(b.full_name || ''));
+
+        if (filteredStudents.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="4" class="text-center">No students found in this class.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = filteredStudents.map((s, index) => {
+          const studentId = s.id || s.student_id;
+          return `
+            <tr>
+              <td class="text-center"><strong>${index + 1}</strong></td>
+              <td><strong>${s.full_name}</strong> ${s.lin ? `(${s.lin})` : ''}</td>
+              <td>
+                <input 
+                  type="number" 
+                  step="any" 
+                  class="student-score-input" 
+                  data-student-id="${studentId}" 
+                  placeholder="Raw Score" 
+                  oninput="calculateConvertedScore(this)"
+                  onkeydown="handleScoreKeydown(event, this)"
+                />
+              </td>
+              <td class="text-center converted-score-cell" style="font-weight: bold; color: #2563eb;">-</td>
+            </tr>
+          `;
+        }).join('');
+
+        updateMaxScoreLabel();
+      } catch (err) {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:red;">Error loading students.</td></tr>';
+      }
+    }
+    function calculateConvertedScore(inputEl) {
+      const rawVal = parseFloat(inputEl.value);
+      const row = inputEl.closest('tr');
+      const convertedCell = row.querySelector('.converted-score-cell');
+
+      if (isNaN(rawVal)) {
+        convertedCell.innerText = '-';
+        return;
+      }
+
+      const markedOutOf = parseFloat(document.getElementById('markedOutOfInput').value) || 100;
+      const select = document.getElementById('assessmentTypeSelect');
+      const examType = select.value;
+      const targetMax = parseFloat(select.options[select.selectedIndex].getAttribute('data-max')) || 80;
+
+      let converted = 0;
+
+      if (examType === 'A1' || examType === 'A2' || examType === 'A3') {
+        // Chapter assessments scale conversion
+        converted = (rawVal / markedOutOf) * targetMax;
+      } else {
+        // Standard proportion calculation for Formative or Summative
+        converted = (rawVal / markedOutOf) * targetMax;
+      }
+
+      convertedCell.innerText = converted.toFixed(1);
+    }
+
+    function recalculateAllScores() {
+      document.querySelectorAll('.student-score-input').forEach(input => {
+        if (input.value.trim() !== '') {
+          calculateConvertedScore(input);
+        }
+      });
+    }
+    function handleScoreKeydown(event, currentInput) {
+      if (['ArrowUp', 'ArrowDown', 'Enter'].includes(event.key)) {
+        event.preventDefault();
+        const inputs = Array.from(document.querySelectorAll('.student-score-input'));
+        const currentIndex = inputs.indexOf(currentInput);
+
+        if (event.key === 'ArrowDown' || event.key === 'Enter') {
+          if (currentIndex < inputs.length - 1) {
+            inputs[currentIndex + 1].focus();
+            inputs[currentIndex + 1].select();
+          }
+        } else if (event.key === 'ArrowUp') {
+          if (currentIndex > 0) {
+            inputs[currentIndex - 1].focus();
+            inputs[currentIndex - 1].select();
+          }
+        }
+      }
+    }
+
+    async function submitAssessmentMarks() {
+      const schoolId = user?.school_id || 1;
+      const classSelect = document.getElementById('markClassSelect');
+      const subjectSelect = document.getElementById('markSubjectSelect');
+      const termSelect = document.getElementById('termSelect');
+      const assessmentTypeSelect = document.getElementById('assessmentTypeSelect');
+      const markedOutOf = parseFloat(document.getElementById('markedOutOfInput').value) || 100;
+      const targetMax = parseFloat(assessmentTypeSelect.options[assessmentTypeSelect.selectedIndex].getAttribute('data-max')) || 80;
+      const msg = document.getElementById('markMsg');
+
+      if (msg) msg.innerText = ""; 
+
+      if (!classSelect.value) return alert("Please select a class.");
+      if (!subjectSelect.value) return alert("Please select a subject.");
+
+      const classId = parseInt(classSelect.value, 10);
+      const subjectId = parseInt(subjectSelect.value, 10);
+      const parsedTerm = parseInt(termSelect.value, 10) || 1;
+      const examType = assessmentTypeSelect.value;
+
+      const scoreInputs = document.querySelectorAll('.student-score-input');
+      const marksData = [];
+      const confirmationSummary = [];
+
+      scoreInputs.forEach((input, index) => {
+        const studentIdAttr = input.getAttribute('data-student-id');
+        const scoreVal = input.value.trim();
+        const studentName = input.closest('tr').querySelector('td:nth-child(2)').innerText;
+
+        if (studentIdAttr && studentIdAttr !== 'undefined' && scoreVal !== '') {
+          const rawNum = parseFloat(scoreVal);
+          const convertedScore = Number(((rawNum / markedOutOf) * targetMax).toFixed(2));
+
+          marksData.push({
+            student_id: parseInt(studentIdAttr, 10),
+            score: convertedScore
+          });
+
+          confirmationSummary.push(`S/N: ${index + 1} | ${studentName} | Raw: ${rawNum}/${markedOutOf} ➔ Converted: ${convertedScore}/${targetMax}`);
+        }
+      });
+
+      if (marksData.length === 0) {
+        if (msg) {
+          msg.style.color = "red";
+          msg.innerText = "Please enter at least one valid student score.";
+        } else {
+          alert("Please enter at least one valid student score.");
+        }
+        return;
+      }
+
+      const confirmMessage = `Ready to save marks for ${marksData.length} student(s):\n\n` + confirmationSummary.join('\n');
+      if (!confirm(confirmMessage)) return;
+
+      try {
+        const res = await fetch(`/api/schools/${schoolId}/record-marks`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            classId,
+            subjectId,
+            examType,
+            term: parsedTerm,
+            marksData
+          })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          if (msg) {
+            msg.style.color = 'green';
+            msg.innerText = data.message || "Marks saved successfully!";
+          } else {
+            alert(data.message || "Marks saved successfully!");
+          }
+        } else {
+          throw new Error(data.error || "Failed to save marks.");
+        }
+      } catch (err) {
+        if (msg) {
+          msg.style.color = 'red';
+          msg.innerText = err.message;
+        } else {
+          alert(err.message);
+        }
+      }
+    }
+async function loadExistingMarks() {
+      const schoolId = user?.school_id || 1;
+      const classSelect = document.getElementById('markClassSelect');
+      const subjectSelect = document.getElementById('markSubjectSelect');
+      const termSelect = document.getElementById('termSelect');
+      const assessmentTypeSelect = document.getElementById('assessmentTypeSelect');
+      const markedOutOf = parseFloat(document.getElementById('markedOutOfInput').value) || 100;
+      const targetMax = parseFloat(assessmentTypeSelect.options[assessmentTypeSelect.selectedIndex].getAttribute('data-max')) || 80;
+      const msg = document.getElementById('markMsg');
+
+      if (msg) msg.innerText = "";
+
+      if (!classSelect.value) return alert("Please select a class first.");
+      if (!subjectSelect.value) return alert("Please select a subject first.");
+
+      const classId = parseInt(classSelect.value, 10);
+      const subjectId = parseInt(subjectSelect.value, 10);
+      const term = parseInt(termSelect.value, 10) || 1;
+      const examType = assessmentTypeSelect.value;
+
+      try {
+        // Fetch the report data for this class & term which includes the recorded marks
+        const res = await fetch(`/api/reports?school_id=${schoolId}&class_id=${classId}&term=${term}`);
+        if (!res.ok) throw new Error("Failed to fetch existing marks.");
+
+        const reports = await res.json();
+        if (!Array.isArray(reports) || reports.length === 0) {
+          alert("No records found for this class and term.");
+          return;
+        }
+
+        // Map student IDs to their recorded score for the selected subject and exam type
+        // Note: The reports endpoint returns subject objects. We map by student ID.
+        let matchCount = 0;
+        
+        document.querySelectorAll('.student-score-input').forEach(input => {
+          input.value = '';
+          const studentId = input.getAttribute('data-student-id');
+          
+          const studentReport = reports.find(r => String(r.student_id) === String(studentId));
+          if (studentReport && studentReport.subjects) {
+            // Find the subject name corresponding to the selected subjectId
+            const subjectOpt = subjectSelect.options[subjectSelect.selectedIndex];
+            const subjectName = subjectOpt ? subjectOpt.text.trim() : '';
+
+            const subData = studentReport.subjects[subjectName];
+            if (subData) {
+              let storedScore = null;
+              if (examType === 'A1') storedScore = subData.a1;
+              else if (examType === 'A2') storedScore = subData.a2;
+              else if (examType === 'A3') storedScore = subData.a3;
+              else if (examType === 'Formative') {
+                // Formative stored as 20% scale, convert back to raw or display directly if stored
+                storedScore = subData.summativeScore; // or check formative raw entries
+              } else if (examType === 'Summative') {
+                storedScore = subData.summativeScore;
+              }
+
+              if (storedScore !== null && storedScore !== undefined && !isNaN(storedScore)) {
+                // Reverse calculate raw score from stored converted score if needed, 
+                // or display directly. Assuming storedScore is on the targetMax scale:
+                // To show in raw input box based on current markedOutOf:
+                const rawEquivalent = (storedScore / targetMax) * markedOutOf;
+                input.value = Number(rawEquivalent.toFixed(1));
+                calculateConvertedScore(input);
+                matchCount++;
+              }
+            }
+          }
+        });
+
+        if (msg) {
+          msg.style.color = 'blue';
+          msg.innerText = `Loaded existing marks for ${matchCount} student(s).`;
+        }
+
+      } catch (err) {
+        console.error(err);
+        if (msg) {
+          msg.style.color = 'red';
+          msg.innerText = "Error loading existing marks.";
+        }
+      }
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      const schoolSubheading = document.getElementById('schoolSubheading');
+      if (user?.school_name && schoolSubheading) {
+        schoolSubheading.textContent = `School: ${user.school_name}`;
+      }
+    });
+  </script>
+</body>
+</html>

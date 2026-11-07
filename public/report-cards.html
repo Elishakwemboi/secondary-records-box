@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Report Cards</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f6f9; padding: 20px; margin: 0; }
+    .container { max-width: 1000px; margin: 0 auto; }
+    .controls { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
+    .form-inline { display: flex; gap: 15px; flex-wrap: wrap; align-items: center; }
+    select, button { padding: 9px 14px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+    .btn-generate { background-color: #28a745; color: white; border: none; cursor: pointer; font-weight: bold; }
+    .btn-generate:hover { background-color: #218838; }
+    .btn-print { background-color: #007bff; color: white; border: none; cursor: pointer; font-weight: bold; }
+    .btn-print:hover { background-color: #0069d9; }
+    
+    /* Professional Phresh Tech Report Card Layout Styles */
+    .report-card { background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 25px; page-break-after: always; break-after: page; border: 1px solid #ddd; }
+    .report-header { text-align: center; border-bottom: 3px solid #003366; padding-bottom: 10px; margin-bottom: 15px; position: relative; }
+    .report-header h2 { color: #003366; margin: 0 0 5px 0; font-size: 22px; }
+    .school-logo { position: absolute; left: 10px; top: 0; width: 65px; height: 65px; object-fit: contain; border-radius: 4px; }
+    .admin-contacts-bar { font-size: 11px; color: #444; margin-top: 5px; font-weight: normal; }
+    .term-banner { background: #003366; color: #fff; text-align: center; font-weight: bold; padding: 6px; font-size: 15px; margin-bottom: 12px; border-radius: 2px; }
+    
+    .student-info-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 15px; background: #f8f9fa; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; }
+    .biodata-table { width: 100%; border-collapse: collapse; }
+    .biodata-table td { padding: 4px 6px; border: 1px solid #ddd; font-size: 12px; }
+    .biodata-table td strong { color: #333; }
+    
+    table.performance-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    table.performance-table th, table.performance-table td { border: 1px solid #bbb; padding: 6px 8px; text-align: left; font-size: 11px; }
+    table.performance-table th { background-color: #eef2f7; color: #111; font-weight: bold; text-align: center; }
+    
+    .section-title { font-weight: bold; font-size: 12px; margin-top: 15px; margin-bottom: 5px; color: #003366; text-transform: uppercase; border-bottom: 1px solid #003366; padding-bottom: 2px; }
+    .remarks-grid { display: grid; grid-template-columns: 140px 1fr; border: 1px solid #ccc; margin-top: 10px; font-size: 12px; }
+    .remarks-label { background: #f1f3f5; padding: 8px; font-weight: bold; border-right: 1px solid #ccc; display: flex; align-items: center; }
+    .remarks-content { padding: 8px; display: flex; align-items: center; font-style: italic; color: #333; }
+
+    .meta-footer-grid { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid #ccc; margin-top: 10px; text-align: center; font-size: 11px; }
+    .meta-footer-cell { border-right: 1px solid #ccc; padding: 6px; }
+    .meta-footer-cell:last-child { border-right: none; }
+    .meta-footer-cell span { display: block; font-weight: bold; margin-top: 2px; }
+
+    .signature-stamp-section { display: grid; grid-template-columns: 1fr 1fr; margin-top: 15px; padding-top: 10px; font-size: 12px; border-top: 1px dashed #bbb; }
+    .signature-box, .stamp-box { text-align: center; padding: 10px; }
+    .signature-line { margin-top: 35px; border-top: 1px solid #333; display: inline-block; width: 200px; padding-top: 4px; font-weight: bold; }
+
+    .student-photo-box { width: 75px; height: 85px; border: 1px solid #ccc; background: #e9ecef; display: flex; align-items: center; justify-content: center; font-size: 9px; color: #6c757d; text-align: center; object-fit: cover; margin: 0 auto; }
+    
+    @media print {
+      .controls, button, select, header, nav, #downloadBtn { 
+        display: none !important; 
+      }
+      body { 
+        background: #fff; 
+        padding: 0; 
+      }
+      .report-card { 
+        box-shadow: none; 
+        border: none; 
+        padding: 0; 
+        margin-bottom: 0; 
+        page-break-after: always;
+        break-after: page;
+      }
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <!-- Filter Controls & Action Buttons -->
+    <div class="controls">
+      <h3 style="margin-top:0; margin-bottom:15px;">Student Report Cards</h3>
+      <div class="form-inline">
+        <label><strong>School:</strong></label>
+        <select id="schoolSelect" onchange="fetchReportCards()"></select>
+
+        <label><strong>Class:</strong></label>
+        <select id="classSelect" onchange="fetchReportCards()">
+          <option value="ALL">All Classes</option>
+        </select>
+
+        <label><strong>Term:</strong></label>
+        <select id="termSelect" onchange="fetchReportCards()">
+          <option value="1">Term 1</option>
+          <option value="2">Term 2</option>
+          <option value="3">Term 3</option>
+        </select>
+
+        <!-- Generate Report Cards Button -->
+        <button type="button" id="genBtn" class="btn-generate" onclick="generateAndFetchReports(event)">
+          🔄 Generate Report Cards
+        </button>
+        <button onclick="goToClassTeacherDashboard()" class="btn-back" style="cursor: pointer; padding: 8px 16px; border: none; background: #f0f0f0; border-radius: 4px; font-weight: 600;">
+          &larr; Back to Dashboard
+        </button>
+
+        <!-- Print / Export PDF Button -->
+        <button type="button" class="btn-print" onclick="window.print()">
+          🖨️ Print / Export to PDF
+        </button>
+
+        <button id="downloadBtn" class="btn-print" style="background-color: #4f46e5;">
+          📥 Download Report Cards
+        </button>
+      </div>
+    </div>
+
+    <!-- Report Cards Container -->
+    <div id="reportContainer">
+      <div class="report-card"><p style="text-align:center; padding:20px;">Loading report cards...</p></div>
+    </div>
+  </div>
+
+  <div id="report-term-summary"></div>
+
+  <script>
+    async function initMeta() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlClass = urlParams.get('class_name') || urlParams.get('classId') || '';
+      const cleanUrlClass = String(urlClass).replace(/^:/, '').trim();
+
+      try {
+        const res = await fetch('/api/meta');
+        const data = await res.json();
+
+        const schoolSelect = document.getElementById('schoolSelect');
+        if (data.schools && data.schools.length > 0) {
+          schoolSelect.innerHTML = data.schools.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+        } else {
+          schoolSelect.innerHTML = `<option value="1">Default School</option>`;
+        }
+
+        const classSelect = document.getElementById('classSelect');
+        let classOptions = '<option value="ALL">All Classes</option>';
+        if (data.classes && data.classes.length > 0) {
+          classOptions += data.classes.map(c => {
+            const val = c.id || c.name;
+            const isSelected = (cleanUrlClass && (String(c.id) === cleanUrlClass || c.name === cleanUrlClass)) ? 'selected' : '';
+            return `<option value="${val}" ${isSelected}>${c.name}</option>`;
+          }).join('');
+        }
+        classSelect.innerHTML = classOptions;
+
+        if (cleanUrlClass && classSelect) {
+          for (let option of classSelect.options) {
+            if (option.value === cleanUrlClass || option.text === cleanUrlClass) {
+              option.selected = true;
+              break;
+            }
+          }
+        }
+      } catch (err) {
+        console.warn("Error initializing meta dropdowns:", err);
+      }
+    }
+
+    async function generateAndFetchReports(e) {
+      if (e) e.preventDefault();
+
+      const genBtn = document.getElementById('genBtn');
+      if (genBtn) {
+        genBtn.innerText = 'Processing...';
+        genBtn.disabled = true;
+      }
+
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const schoolSelect = document.getElementById('schoolSelect');
+        const classSelect = document.getElementById('classSelect');
+        const termSelect = document.getElementById('termSelect');
+
+        const rawSchool = (schoolSelect && schoolSelect.value) || urlParams.get('school_id') || localStorage.getItem('schoolId') || 1;
+        const rawClass = (classSelect && classSelect.value && classSelect.value !== 'ALL') 
+          ? classSelect.value 
+          : (urlParams.get('class_name') || urlParams.get('classId') || localStorage.getItem('className') || 'ALL');
+        const rawTerm = (termSelect && termSelect.value) || urlParams.get('term') || 1;
+        const rawYear = urlParams.get('year') || new Date().getFullYear();
+
+        const schoolId = parseInt(rawSchool, 10) || 1;
+        const cleanClassRaw = String(rawClass).replace(/^:/, '').trim();
+        const className = (cleanClassRaw === 'ALL' || cleanClassRaw === 'No Assigned Class') ? null : cleanClassRaw;
+
+        const term = parseInt(String(rawTerm).replace(/\D/g, ''), 10) || 1;
+        const year = parseInt(rawYear, 10) || 2026;
+
+        const response = await fetch('/api/generate-reports', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            school_id: schoolId, 
+            class_name: className, 
+            class_id: className,
+            term: term, 
+            year: year 
+          })
+        });
+
+        if (!response.ok) {
+          const errText = await response.text();
+          throw new Error(`Server returned status ${response.status}: ${errText}`);
+        }
+
+        const resData = await response.json();
+        console.log("Reports generated successfully:", resData);
+
+        if (urlParams.has('studentId') || urlParams.has('student_id')) {
+          const newUrl = window.location.pathname;
+          window.history.replaceState({}, document.title, newUrl);
+        }
+
+        if (typeof fetchReportCards === 'function') {
+          await fetchReportCards();
+        }
+
+      } catch (error) {
+        console.error("Error during report card generation/fetching:", error);
+        alert("Failed to generate report cards. Please check console for details.");
+      } finally {
+        if (genBtn) {
+          genBtn.innerText = '🔄 Generate Report Cards';
+          genBtn.disabled = false;
+        }
+      }
+    }
+
+    function getRemarks(avg) {
+      let classTeacherComment = "";
+      let headTeacherComment = "";
+
+      if (avg >= 75) {
+          classTeacherComment = "An exceptional performance! Keep up the brilliant standard.";
+          headTeacherComment = "Top-tier performance! Outstanding dedication and academic excellence.";
+      } else if (avg >= 60) {
+          classTeacherComment = "Good work, aim higher! You have done well, but there is room for further improvement.";
+          headTeacherComment = "A strong effort! Aim for greater mastery by staying consistent.";
+      } else if (avg >= 50) {
+          classTeacherComment = "Fair effort. Put more focus into your weaker subjects next term.";
+          headTeacherComment = "Satisfactory results. Greater commitment will yield higher marks.";
+      } else {
+          classTeacherComment = "Below expectations. Serious dedication and extra study time are required.";
+          headTeacherComment = "Needs much more concentration and hard work next term.";
+      }
+
+      return { classTeacherComment, headTeacherComment };
+    }
+
+    function safeToFixed(val, digits = 1) {
+      const num = parseFloat(val);
+      return isNaN(num) ? '-' : num.toFixed(digits);
+    }
+
+    function calculateGrade(scoreVal) {
+      const num = parseFloat(scoreVal);
+      if (isNaN(num)) return '-';
+      if (num >= 80) return 'A';
+      if (num >= 70) return 'B';
+      if (num >= 60) return 'C';
+      if (num >= 50) return 'D';
+      return 'E';
+    }
+
+    function calculateDescriptor(scoreVal) {
+      const num = parseFloat(scoreVal);
+      if (isNaN(num)) return '-';
+      if (num >= 80) return 'Outstanding';
+      if (num >= 50) return 'Moderate';
+      return 'Basic';
+    }
+
+    async function fetchReportCards() {
+      const container = document.getElementById('reportContainer');
+      if (!container) return;
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const studentId = urlParams.get('studentId') || urlParams.get('student_id');
+
+      const schoolSelect = document.getElementById('schoolSelect');
+      const classSelect = document.getElementById('classSelect');
+      const termSelect = document.getElementById('termSelect');
+
+      const schoolId = parseInt((schoolSelect && schoolSelect.value) || urlParams.get('school_id') || localStorage.getItem('schoolId') || 1, 10);
+      const selectedOption = classSelect && classSelect.options ? classSelect.options[classSelect.selectedIndex] : null;
+      
+      let rawClass = (classSelect && classSelect.value) || urlParams.get('class_name') || urlParams.get('classId') || localStorage.getItem('className') || 'ALL';
+      let classVal = String(rawClass).replace(/^:/, '').trim();
+      let classNameText = selectedOption ? selectedOption.text : classVal;
+
+      const rawTerm = (termSelect && termSelect.value) || urlParams.get('term') || 1;
+      const cleanTermStr = String(rawTerm).split(/[:-_]/)[0].replace(/\D/g, '') || '1';
+      const term = parseInt(cleanTermStr, 10) || 1;
+      
+      try {
+        let url = `/api/reports?school_id=${schoolId}&term=${term}`;
+        
+        if (studentId) {
+          url += `&student_id=${encodeURIComponent(studentId)}`;
+        } else if (classVal && classVal !== 'ALL' && classVal !== 'No Assigned Class') {
+          url += `&class=${encodeURIComponent(classVal)}&class_id=${encodeURIComponent(classVal)}&class_name=${encodeURIComponent(classNameText)}`;
+        }
+
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`Server returned status ${res.status}`);
+
+        const reports = await res.json();
+
+        if (!Array.isArray(reports) || reports.length === 0) {
+          container.innerHTML = '<div class="report-card"><p style="text-align:center;">No report cards found for the selected filters.</p></div>';
+          return;
+        }
+
+        container.innerHTML = reports.map(student => {
+          const studentName = student.student_name || student.name || 'N/A';
+          const classNameVal = student.class_name || student.class || 'N/A';
+          const schoolNameVal = student.school_name || student.schoolName || 'KAPKWATA SSS';
+          const studentIdNo = student.id_no || student.idNo || student.student_id || student.id || 'N/A';
+          const genderVal = student.gender || 'N/A';
+          
+          // School Contacts & Registration Email mapping
+          const adminContactVal = student.admin_contact || student.adminContact || student.phone || student.telephone || student.school_phone || '';
+          const schoolEmailVal = student.school_email || student.schoolEmail || student.email || student.registration_email || '';
+
+          // School Logo
+          const schoolLogoUrl = student.school_logo || student.schoolLogo || student.logo_url || '';
+
+          const subjects = student.subjects || {};
+          const subjectEntries = Object.entries(subjects);
+
+          const activeSubjects = subjectEntries.filter(([subjectName, scores]) => {
+            if (!scores) return false;
+            
+            const final = parseFloat(scores.finalScore);
+            const sum80 = parseFloat(scores.summative80);
+            const form20 = parseFloat(scores.formative20);
+
+            return (!isNaN(final) && final > 0) || 
+                   (!isNaN(sum80) && sum80 > 0) || 
+                   (!isNaN(form20) && form20 > 0);
+          });
+
+         const hasA1 = activeSubjects.some(([_, scores]) => scores.a1 !== undefined && scores.a1 !== null && !isNaN(scores.a1) && scores.a1 > 0);
+          const hasA2 = activeSubjects.some(([_, scores]) => scores.a2 !== undefined && scores.a2 !== null && !isNaN(scores.a2) && scores.a2 > 0);
+          const hasA3 = activeSubjects.some(([_, scores]) => scores.a3 !== undefined && scores.a3 !== null && !isNaN(scores.a3) && scores.a3 > 0);
+          const hasAnyChapter = hasA1 || hasA2 || hasA3;
+
+          let performanceHeaders = `<tr><th>Code Subject</th>`;
+          if (hasA1) performanceHeaders += `<th>A1</th>`;
+          if (hasA2) performanceHeaders += `<th>A2</th>`;
+          if (hasA3) performanceHeaders += `<th>A3</th>`;
+          if (hasAnyChapter) performanceHeaders += `<th>AVG</th>`;
+          performanceHeaders += `
+              <th>20%</th>
+              <th>80%</th>
+              <th>100%</th>
+              <th>GRADE</th>
+              <th>Level of Achievement</th>
+              <th>TR</th>
+            </tr>
+          `;
+
+          let subjectRows = '';
+
+          for (const [subjectName, scores] of activeSubjects) {
+            if (!scores) continue;
+
+            const actualSubjectName = scores.subject_name || scores.name || subjectName;
+            const codeStr = scores.code || '-';
+            const a1Str = safeToFixed(scores.a1, 1);
+            const a2Str = safeToFixed(scores.a2, 1);
+            const a3Str = safeToFixed(scores.a3, 1);
+            const avgAssessStr = safeToFixed(scores.avgAssess || scores.formativeAvg, 1);
+
+            const form20Val = parseFloat(scores.formative20 !== undefined ? scores.formative20 : scores.formative_20);
+            const form20Str = (!isNaN(form20Val) && form20Val > 0) ? safeToFixed(form20Val) : '-';
+
+            const sum80Val = parseFloat(scores.summative80 !== undefined ? scores.summative80 : scores.summativeScore);
+            const sum80Str = (!isNaN(sum80Val) && sum80Val > 0) ? safeToFixed(sum80Val) : '-';
+
+            const finalScoreVal = parseFloat(scores.finalScore);
+            const finalScoreStr = !isNaN(finalScoreVal) ? safeToFixed(finalScoreVal) : '-';
+
+            const gradeStr = calculateGrade(finalScoreVal);
+            const descriptorStr = calculateDescriptor(finalScoreVal);
+            const teacherInitials = scores.teacherName || '-';
+            
+            let chapterCells = '';
+            if (hasA1) chapterCells += `<td style="text-align:center;">${a1Str}</td>`;
+            if (hasA2) chapterCells += `<td style="text-align:center;">${a2Str}</td>`;
+            if (hasA3) chapterCells += `<td style="text-align:center;">${a3Str}</td>`;
+            if (hasAnyChapter) chapterCells += `<td style="text-align:center;">${avgAssessStr}</td>`;
+            
+            subjectRows += `
+              <tr>
+                <td>${codeStr} ${actualSubjectName}</td>
+                ${chapterCells}
+                <td style="text-align:center;">${form20Str}</td>
+                <td style="text-align:center;">${sum80Str}</td>
+                <td style="text-align:center;"><strong>${finalScoreStr}</strong></td>
+                <td style="text-align:center;"><strong>${gradeStr}</strong></td>
+                <td>${descriptorStr}</td>
+                <td style="text-align:center;">${teacherInitials}</td>
+              </tr>
+            `;
+          }
+
+          if (!subjectRows) {
+            const colspanVal = hasAnyChapter ? 11 : 7;
+            subjectRows = `<tr><td colspan="${colspanVal}" style="text-align:center;">No subject marks available yet.</td></tr>`;
+          }
+
+          const avgDisplay = safeToFixed(student.avgPercentage, 1);
+          const totalStudents = reports.length;
+          const studentRank = student.rank || '-';
+          const remarks = getRemarks(parseFloat(student.avgPercentage) || 0);
+
+          // Optional Fees Balance formatting
+          const rawFeesBal = student.fees_balance !== undefined && student.fees_balance !== null ? student.fees_balance : student.feesBalance;
+          const feesBalDisplay = (rawFeesBal !== undefined && rawFeesBal !== null && rawFeesBal !== '' && Number(rawFeesBal) !== 0) 
+            ? Number(rawFeesBal).toLocaleString() 
+            : '';
+
+          const rawFeesNext = student.fees_next_term !== undefined && student.fees_next_term !== null ? student.fees_next_term : (student.feesNextTerm || student.next_term_fees);
+          const feesNextDisplay = (rawFeesNext !== undefined && rawFeesNext !== null && rawFeesNext !== '' && Number(rawFeesNext) !== 0)
+            ? Number(rawFeesNext).toLocaleString()
+            : '';
+
+          // Term Ended On and Next Term Begins Dates
+          const termEndedOnDate = student.term_ended_on || student.termEndedOn || student.closing_date || student.term_end_date || window.activeTermEnd || '';
+          const nextTermBeginsDate = student.next_term_begins || student.nextTermBegins || student.next_term_opening_date || student.next_term_start || window.activeTermNext || '';
+
+          return `
+            <div class="report-card">
+              <!-- Header with Logo and Contacts -->
+              <div class="report-header">
+                ${schoolLogoUrl ? `<img src="${schoolLogoUrl}" alt="School Logo" class="school-logo" />` : ''}
+                <h2>${schoolNameVal.toUpperCase()}</h2>
+                <p style="margin:2px 0; font-size:12px; color:#555;">Lower Secondary Curriculum (NCDC Standards)</p>
+                ${(adminContactVal || schoolEmailVal) ? `
+                  <div class="admin-contacts-bar">
+                    ${adminContactVal ? `<strong>Tel:</strong> ${adminContactVal}` : ''}
+                    ${(adminContactVal && schoolEmailVal) ? ' &nbsp;|&nbsp; ' : ''}
+                    ${schoolEmailVal ? `<strong>Email:</strong> ${schoolEmailVal}` : ''}
+                  </div>
+                ` : ''}
+              </div>
+
+              <div class="term-banner">TERM ${term} REPORT CARD</div>
+
+              <!-- Biodata Section -->
+              <div class="student-info-grid">
+                <table class="biodata-table">
+                  <tr>
+                    <td><strong>NAME:</strong> ${studentName}</td>
+                    <td><strong>GENDER:</strong> ${genderVal}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>CLASS:</strong> ${classNameVal}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>TERM:</strong> ${term}</td>
+                    <td><strong>ID NO:</strong> ${studentIdNo}</td>
+                  </tr>
+                </table>
+                <div style="display:flex; align-items:center; justify-content:center;">
+                  ${student.photoUrl 
+                    ? `<img src="${student.photoUrl}" alt="Passport Photo" class="student-photo-box" />` 
+                    : `<div class="student-photo-box">PASSPORT<br>PHOTO</div>`
+                  }
+                </div> 
+              </div>     
+
+              <!-- Performance Records Table -->
+              <div class="section-title">Performance Records</div>
+              <table class="performance-table" border="1">
+                <thead>
+                  ${performanceHeaders}
+                </thead>
+                <tbody>
+                  ${subjectRows}
+                </tbody>
+              </table>
+
+              <!-- Summary Section -->
+              <table style="width:100%; border-collapse:collapse; margin-top:5px; font-size:12px;" border="1">
+                <tr>
+                  <td style="padding:6px; width:50%;"><strong>AVERAGE:</strong></td>
+                  <td style="padding:6px; text-align:right;"><strong>${avgDisplay}%</strong></td>
+                  <td style="padding:6px; width:15%;"><strong>Result:</strong></td>
+                  <td style="padding:6px; text-align:center;"><strong>${student.resultCode || '1'}</strong></td>
+                </tr>
+                <tr>
+                  <td colspan="2" style="padding:6px;"><strong>Position in stream:</strong></td>
+                  <td colspan="2" style="padding:6px; text-align:center;"><strong>${studentRank}</strong> Out of <strong>${totalStudents}</strong></td>
+                </tr>
+                <tr>
+                  <td colspan="4" style="padding:6px; background:#f8f9fa;">
+                    <strong>GRADING SCALE:</strong> A(80 - 100) &nbsp;&nbsp; B(70 - 79) &nbsp;&nbsp; C(60 - 59) &nbsp;&nbsp; D(50 - 59) &nbsp;&nbsp; E(0 - 49)
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Key to Terms Used -->
+              <div style="margin-top:8px; font-size:11px; border:1px solid #ccc; padding:6px; background:#fafafa;">
+                <strong>Key to Terms Used:</strong> <strong>A1</strong> Average Chapter Assessment &nbsp;|&nbsp; <strong>80%</strong> End of term assessment
+              </div>
+
+              <!-- Remarks Section -->
+              <div class="remarks-grid">
+                <div class="remarks-label">Class teacher's Comment:</div>
+                <div class="remarks-content">${remarks.classTeacherComment}</div>
+
+                <div class="remarks-label">Headteacher's Comment:</div>
+                <div class="remarks-content">${remarks.headTeacherComment}</div>
+              </div>
+
+              <!-- Meta Footer Metadata -->
+              <div class="meta-footer-grid">
+                <div class="meta-footer-cell">
+                  TERM ENDED ON<span>${termEndedOnDate || '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'}</span>
+                </div>
+                <div class="meta-footer-cell">
+                 NEXT TERM BEGINS<span>${nextTermBeginsDate || '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'}</span>
+                </div>
+                <div class="meta-footer-cell">
+                  FEES BALANCE<span>${feesBalDisplay}</span>
+                </div>
+                <div class="meta-footer-cell">
+                  FEES NEXT TERM<span>${feesNextDisplay}</span>
+                </div>
+              </div>
+
+              <!-- Headteacher Signature & Stamp Section -->
+              <div class="signature-stamp-section">
+                <div class="signature-box">
+                  <div class="signature-line">Headteacher's Signature</div>
+                </div>
+                <div class="stamp-box">
+                  <div class="signature-line">STAMP</div>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+      } catch (err) {
+        console.error("Error loading report cards:", err);
+        if (container) {
+          container.innerHTML = `<div class="report-card"><p style="color:red; text-align:center;">Error loading report cards: ${err.message}</p></div>`;
+        }
+      }
+    }
+
+    function goToClassTeacherDashboard() {
+      window.location.href = '/class-teacher-dashboard.html';
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const generateBtn = document.getElementById('genBtn'); 
+
+        if (generateBtn) {
+            generateBtn.addEventListener('click', (e) => {
+                const schoolSelect = document.getElementById('schoolSelect');
+                const classSelect = document.getElementById('classSelect');
+                const termSelect = document.getElementById('termSelect');
+
+                const schoolId = schoolSelect ? schoolSelect.value : '';
+                const classId = classSelect ? classSelect.value : '';
+                const termId = termSelect ? termSelect.value : '';
+
+                if (!schoolId || !classId || !termId) {
+                    alert("Please select a School, Class, and Term first!");
+                    return;
+                }
+
+                generateAndFetchReports(e);
+            });
+        }
+    });
+
+    window.onload = () => {
+        initMeta();
+    };
+
+    document.getElementById('downloadBtn').addEventListener('click', async function () {
+      try {
+        await fetch('/api/download-report-cards?classId=Senior%201A');
+
+        const element = document.getElementById('reportContainer'); 
+        const options = {
+          margin:       10,
+          filename:     'Student-Report-Cards.pdf',
+          image:        { type: 'jpeg', quality: 0.98 },
+          html2canvas:  { scale: 2, useCORS: true },
+          jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        html2pdf().from(element).set(options).save();
+      } catch (err) {
+        console.error("Download failed:", err);
+        alert("Could not export the report cards file.");
+      }
+    });
+  </script>
+</body>
+</html>

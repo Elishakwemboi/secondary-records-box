@@ -1,0 +1,25 @@
+{
+  "name": "secondary-records-box",
+  "version": "1.0.0",
+  "description": "",
+  "main": "setup-db.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "bcrypt": "^6.0.0",
+    "bcryptjs": "^3.0.3",
+    "dotenv": "^18.0.7",
+    "express": "^5.2.1",
+    "sqlite3": "^6.0.1"
+  },
+  "allowScripts": {
+    "bcrypt@6.0.0": true,
+    "sqlite3@6.0.1": true
+  }
+}
