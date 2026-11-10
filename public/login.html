@@ -5,153 +5,287 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - Secondary School Box</title>
   <style>
-    * { box-sizing: border-box; font-family: Arial, sans-serif; }
-    body {
-      background: #f4f6f9;
-      display: flex;
-      min-height: 100vh;
-      margin: 0;
-    }
+   
+* {
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
 
-    /* Sidebar Styling */
-    .sidebar {
-      width: 250px;
-      background: #1e293b;
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      padding: 20px 0;
-      flex-shrink: 0;
-    }
-    .sidebar-brand {
-      font-size: 1.1rem;
-      font-weight: bold;
-      text-align: center;
-      padding-bottom: 20px;
-      border-bottom: 1px solid #334155;
-      margin-bottom: 15px;
-      color: #38bdf8;
-    }
-    .sidebar-nav {
-      display: flex;
-      flex-direction: column;
-    }
-    .sidebar-link {
-      padding: 12px 25px;
-      color: #cbd5e1;
-      text-decoration: none;
-      font-size: 0.95rem;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      transition: background 0.2s;
-    }
-    .sidebar-link:hover, .sidebar-link.active {
-      background: #2563eb;
-      color: #ffffff;
-    }
+html {
+  width: 100%;
+  min-height: 100%;
+}
 
-    /* Main Container */
-    .main-wrapper {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-    }
+body {
+  background: #f4f6f9;
+  display: flex;
+  min-height: 100vh;
+  margin: 0;
+  width: 100%;
+  overflow-x: hidden;
+}
 
-    .login-card {
-      background: #ffffff;
-      padding: 35px 30px;
-      border-radius: 10px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-      width: 100%;
-      max-width: 450px;
-    }
-    .header {
-      text-align: center;
-      margin-bottom: 25px;
-    }
-    .header h1 {
-      margin: 0;
-      color: #0f172a;
-      font-size: 1.6rem;
-    }
-    .header p {
-      margin-top: 8px;
-      color: #64748b;
-      font-size: 0.9rem;
-      line-height: 1.4;
-    }
-    .form-group {
-      margin-bottom: 18px;
-    }
-    .form-group label {
-      display: block;
-      margin-bottom: 6px;
-      font-weight: bold;
-      color: #334155;
-      font-size: 0.88rem;
-    }
-    .form-group input, .form-group select {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1px solid #cbd5e1;
-      border-radius: 6px;
-      font-size: 0.95rem;
-      outline: none;
-    }
+/* Sidebar */
+.sidebar {
+  width: 250px;
+  min-width: 250px;
+  background: #1e293b;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 0;
+  flex-shrink: 0;
+}
 
-    /* Password Wrapper & Toggle Icon */
-    .password-wrapper {
-      position: relative;
-      display: flex;
-      align-items: center;
-    }
-    .password-wrapper input {
-      padding-right: 45px;
-    }
-    .toggle-password {
-      position: absolute;
-      right: 10px;
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-size: 1.1rem;
-      color: #64748b;
-      padding: 5px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .toggle-password:hover {
-      color: #0f172a;
-    }
+.sidebar-brand {
+  font-size: 1.1rem;
+  font-weight: bold;
+  text-align: center;
+  padding: 0 12px 20px;
+  border-bottom: 1px solid #334155;
+  margin-bottom: 15px;
+  color: #38bdf8;
+}
 
-    .form-group input:focus, .form-group select:focus {
-      border-color: #2563eb;
-    }
-    .btn-login {
-      width: 100%;
-      padding: 12px;
-      background: #2563eb;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-size: 1rem;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-    .btn-login:hover {
-      background: #1d4ed8;
-    }
-    #errorMsg {
-      margin-top: 15px;
-      color: #dc2626;
-      font-size: 0.88rem;
-      text-align: center;
-    }
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-link {
+  padding: 12px 20px;
+  color: #cbd5e1;
+  text-decoration: none;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: background 0.2s;
+}
+
+.sidebar-link:hover,
+.sidebar-link.active {
+  background: #2563eb;
+  color: #fff;
+}
+
+/* Main content */
+.main-wrapper {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 25px;
+}
+
+.login-card {
+  background: #fff;
+  padding: 35px 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  width: 100%;
+  max-width: 450px;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.header h1 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 1.6rem;
+}
+
+.header p {
+  margin-top: 8px;
+  color: #64748b;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: bold;
+  color: #334155;
+  font-size: 0.88rem;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 16px;
+  outline: none;
+}
+
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-wrapper input {
+  padding-right: 45px;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  color: #64748b;
+  padding: 5px;
+}
+
+.toggle-password:hover {
+  color: #0f172a;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #2563eb;
+}
+
+.btn-login {
+  width: 100%;
+  padding: 13px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.btn-login:hover {
+  background: #1d4ed8;
+}
+
+#errorMsg {
+  margin-top: 15px;
+  color: #dc2626;
+  font-size: 0.88rem;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+/* Password reset modal */
+#resetModal {
+  padding: 15px;
+  overflow-y: auto;
+}
+
+#resetModal > div {
+  width: 100%;
+  max-width: 400px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+/* Tablet */
+@media (max-width: 900px) {
+  .sidebar {
+    width: 210px;
+    min-width: 210px;
+  }
+
+  .main-wrapper {
+    padding: 18px;
+  }
+
+  .login-card {
+    padding: 28px 22px;
+  }
+}
+
+/* Mobile phones */
+@media (max-width: 600px) {
+  body {
+    display: block;
+    min-height: 100vh;
+  }
+
+  .sidebar {
+    width: 100%;
+    min-width: 0;
+    padding: 12px 10px;
+  }
+
+  .sidebar-brand {
+    padding-bottom: 10px;
+    margin-bottom: 8px;
+    font-size: 1rem;
+  }
+
+  .sidebar-nav {
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .sidebar-link {
+    padding: 9px 10px;
+    font-size: 0.82rem;
+  }
+
+  .main-wrapper {
+    width: 100%;
+    min-width: 0;
+    padding: 20px 12px;
+    align-items: flex-start;
+  }
+
+  .login-card {
+    width: 100%;
+    max-width: 450px;
+    padding: 25px 18px;
+    border-radius: 8px;
+  }
+
+  .header h1 {
+    font-size: 1.35rem;
+  }
+
+  .header p {
+    font-size: 0.88rem;
+  }
+
+  #resetModal > div {
+    padding: 20px !important;
+  }
+}
+
+/* Very small phones */
+@media (max-width: 360px) {
+  .sidebar-link {
+    font-size: 0.75rem;
+    padding: 8px 6px;
+  }
+
+  .login-card {
+    padding: 20px 14px;
+  }
+
+  .header h1 {
+    font-size: 1.2rem;
+  }
+}
+ 
   </style>
 </head>
 <body>
@@ -246,115 +380,131 @@
       }
     }
 
-   async function handleLogin(event) {
-  event.preventDefault();
+    // Unified Login Handler connected to the form's onsubmit attribute
+    async function handleLogin(event) {
+      event.preventDefault();
 
-  const username = document.getElementById('username').value.trim();
-  const password = document.getElementById('password').value;
-  const selectedRole = document.getElementById('roleSelect').value;
-  const errorMsg = document.getElementById('errorMsg');
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+      const roleSelect = document.getElementById('roleSelect');
+      const selectedRole = roleSelect.value; // e.g., 'super_admin', 'school_admin', 'class_teacher', 'teacher'
+      
+      // Get the human-readable text for matching backend role checks if needed (e.g., "Subject Teacher")
+      const selectedRoleText = roleSelect.options[roleSelect.selectedIndex].text;
+      
+      const errorMsg = document.getElementById('errorMsg');
+      errorMsg.innerText = '';
 
-  errorMsg.innerText = '';
+      try {
+        // Send fields matching what your Express backend expects
+        const response = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            username: username,
+            password: password,
+            role: selectedRoleText // Send the readable role string ("Subject Teacher", "Class Teacher", etc.)
+          })
+        });
 
-  try {
-    const response = await fetch('/api/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        username: username,
-        password: password,
-        requested_role: selectedRole
-      })
-    });
+        const data = await response.json();
 
-    const data = await response.json();
+        if (!response.ok) {
+          // Display the server's error message (e.g., unassigned class teacher or invalid password)
+          errorMsg.innerText = data.error || data.message || 'Login failed. Please check your credentials.';
+          return;
+        }
 
-    if (response.ok && data.user) {
-      // Extract properties safely from backend API response
-      const classId = data.user.class_id || data.user.assigned_class_id || '';
-      const className = data.user.class_name || data.user.assigned_class_name || '';
+        if (data.user) {
+          const classId = data.user.class_id || data.user.assigned_class_id || '';
+          const className = data.user.class_name || data.user.assigned_class_name || '';
 
-      const sessionUser = {
-        id: data.user.id || data.user.teacher_id,
-        teacher_id: data.user.id || data.user.teacher_id,
-        full_name: data.user.full_name,
-        role: selectedRole,
-        school_id: data.user.school_id,
-        school_name: data.user.school_name,
-        class_id: classId,
-        class_name: className
-      };
+          const sessionUser = {
+            id: data.user.id || data.user.teacher_id,
+            teacher_id: data.user.id || data.user.teacher_id,
+            full_name: data.user.full_name,
+            role: selectedRoleText,
+            school_id: data.user.school_id,
+            school_name: data.user.school_name,
+            class_id: classId,
+            class_name: className
+          };
 
-      // Set complete user object & individual fallback keys
-      localStorage.setItem('user', JSON.stringify(sessionUser));
-      localStorage.setItem('schoolId', sessionUser.school_id || '');
-      localStorage.setItem('teacherId', sessionUser.id || '');
-      localStorage.setItem('classId', classId);
+          // Save session info to localStorage
+          localStorage.setItem('user', JSON.stringify(sessionUser));
+          localStorage.setItem('schoolId', sessionUser.school_id || '');
+          localStorage.setItem('teacherId', sessionUser.id || '');
+          localStorage.setItem('classId', classId);
+        }
 
-      // Redirect based on selected role
-      switch (selectedRole) {
-        case 'super_admin':
-          window.location.href = '/super-admin.html';
-          break;
-        case 'school_admin':
-          window.location.href = '/dashboard.html';
-          break;
-        case 'class_teacher':
-          window.location.href = '/class-teacher-dashboard.html';
-          break;
-        case 'teacher':
-        default:
-          window.location.href = '/teacher-dashboard.html';
-          break;
+        // Redirect based on the URL returned by the backend middleware / route, with a fallback
+        if (data.redirectUrl) {
+          window.location.href = data.redirectUrl;
+        } else {
+          // Fallback based on selected role value
+          switch (selectedRole) {
+            case 'super_admin':
+              window.location.href = '/super-admin.html';
+              break;
+            case 'school_admin':
+              window.location.href = '/dashboard.html';
+              break;
+            case 'class_teacher':
+              window.location.href = '/dashboard/class-teacher';
+              break;
+            case 'teacher':
+            default:
+              window.location.href = '/dashboard/subject-teacher';
+              break;
+          }
+        }
+
+      } catch (err) {
+        console.error('Login error:', err);
+        errorMsg.innerText = 'Unable to connect to server. Please try again.';
       }
-    } else {
-      errorMsg.innerText = data.error || data.message || 'Invalid email or password';
     }
-  } catch (err) {
-    console.error('Login error:', err);
-    errorMsg.innerText = 'Unable to connect to server. Please try again.';
-  }
-}
+
     function openResetModal() {
-  document.getElementById('resetModal').style.display = 'flex';
-  document.getElementById('resetMsg').innerText = '';
-}
-
-function closeResetModal() {
-  document.getElementById('resetModal').style.display = 'none';
-}
-
-async function handlePasswordReset(event) {
-  event.preventDefault();
-  const email = document.getElementById('resetEmail').value.trim();
-  const resetMsg = document.getElementById('resetMsg');
-
-  resetMsg.style.color = '#2563eb';
-  resetMsg.innerText = 'Processing request...';
-
-  try {
-    const response = await fetch('/api/forgot-password', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email })
-    });
-
-    const data = await response.json();
-
-    if (response.ok) {
-      resetMsg.style.color = '#16a34a';
-      resetMsg.innerText = data.message || 'Reset request sent successfully! Contact system admin or check your email.';
-      setTimeout(() => closeResetModal(), 3000);
-    } else {
-      resetMsg.style.color = '#dc2626';
-      resetMsg.innerText = data.error || 'Failed to request password reset.';
+      document.getElementById('resetModal').style.display = 'flex';
+      document.getElementById('resetMsg').innerText = '';
     }
-  } catch (err) {
-    console.error('Password reset error:', err);
-    resetMsg.style.color = '#dc2626';
-    resetMsg.innerText = 'Server error. Please try again later.';
-  }
-}
-  </script>
+
+    function closeResetModal() {
+      document.getElementById('resetModal').style.display = 'none';
+    }
+
+    async function handlePasswordReset(event) {
+      event.preventDefault();
+      const email = document.getElementById('resetEmail').value.trim();
+      const resetMsg = document.getElementById('resetMsg');
+
+      resetMsg.style.color = '#2563eb';
+      resetMsg.innerText = 'Processing request...';
+
+      try {
+        const response = await fetch('/api/forgot-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          resetMsg.style.color = '#16a34a';
+          resetMsg.innerText = data.message || 'Reset request sent successfully! Contact system admin or check your email.';
+          setTimeout(() => closeResetModal(), 3000);
+        } else {
+          resetMsg.style.color = '#dc2626';
+          resetMsg.innerText = data.error || 'Failed to request password reset.';
+        }
+      } catch (err) {
+        console.error('Password reset error:', err);
+        resetMsg.style.color = '#dc2626';
+        resetMsg.innerText = 'Server error. Please try again later.';
+      }
+    }
+  </script>  
 </body>
 </html>

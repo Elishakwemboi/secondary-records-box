@@ -2,49 +2,377 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Class Teacher Dashboard</title>
   <style>
-    * { box-sizing: border-box; font-family: Arial, sans-serif; }
-    body { display: flex; margin: 0; min-height: 100vh; background-color: #f4f6f9; }
-    
-    /* Sidebar Layout */
-    .sidebar { width: 260px; background: #1e293b; color: #fff; padding: 20px 0; flex-shrink: 0; }
-    .sidebar h2 { text-align: center; font-size: 1.2rem; border-bottom: 1px solid #334155; padding-bottom: 15px; margin-bottom: 20px; }
-    .nav-btn { display: block; width: 100%; padding: 12px 20px; background: none; border: none; color: #cbd5e1; text-align: left; cursor: pointer; font-size: 0.95rem; }
-    .nav-btn:hover, .nav-btn.active { background: #2563eb; color: #fff; }
+* {
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
 
-    /* Main Content & Header */
-    .main-wrapper { flex: 1; display: flex; flex-direction: column; }
-    .header { background: #fff; padding: 15px 30px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
-    .header-titles h1 { margin: 0; font-size: 1.4rem; color: #0f172a; }
-    .header-titles p { margin: 4px 0 0 0; font-size: 0.9rem; color: #64748b; }
-    .content { padding: 30px; flex: 1; }
+html, body {
+  margin: 0;
+  min-height: 100%;
+  width: 100%;
+}
 
-    /* Cards & Tables */
-    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 25px; }
-    .stat-card { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-    .stat-card h4 { margin: 0; color: #64748b; font-size: 0.85rem; }
-    .stat-card div { font-size: 1.8rem; font-weight: bold; margin-top: 8px; color: #0f172a; }
-    
-    .panel { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; }
-    .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { border: 1px solid #e2e8f0; padding: 10px; text-align: left; font-size: 0.9rem; }
-    th { background: #f8fafc; }
+body {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f4f6f9;
+  overflow-x: hidden;
+}
 
-    /* Action Buttons */
-    .btn { padding: 8px 14px; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem; background: #2563eb; color: white; }
-    .btn-secondary { background: #64748b; }
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
+/* Sidebar */
+.sidebar {
+  width: 260px;
+  background: #1e293b;
+  color: #fff;
+  padding: 20px 0;
+  flex-shrink: 0;
+  min-height: 100vh;
+}
 
-    /* Print Formatting */
-    @media print {
-      .sidebar, .header, .btn, .nav-btn, .no-print { display: none !important; }
-      body, .main-wrapper, .content { background: #fff; margin: 0; padding: 0; width: 100%; }
-      .panel { box-shadow: none; border: none; padding: 0; }
-    }
+.sidebar h2 {
+  text-align: center;
+  font-size: 1.2rem;
+  border-bottom: 1px solid #334155;
+  padding: 0 10px 15px;
+  margin-bottom: 20px;
+}
 
+.nav-btn {
+  display: block;
+  width: 100%;
+  padding: 12px 20px;
+  background: none;
+  border: none;
+  color: #cbd5e1;
+  text-align: left;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.nav-btn:hover,
+.nav-btn.active {
+  background: #2563eb;
+  color: #fff;
+}
+
+/* Main Content */
+.main-wrapper {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  background: #fff;
+  padding: 15px 30px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-titles {
+  min-width: 0;
+}
+
+.header-titles h1 {
+  margin: 0;
+  font-size: 1.4rem;
+  color: #0f172a;
+  overflow-wrap: anywhere;
+}
+
+.header-titles p {
+  margin: 4px 0 0;
+  font-size: 0.9rem;
+  color: #64748b;
+  line-height: 1.6;
+}
+
+.content {
+  padding: 30px;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Mobile Menu Button */
+.menu-toggle {
+  display: none;
+  border: none;
+  background: #2563eb;
+  color: white;
+  padding: 9px 12px;
+  border-radius: 5px;
+  font-size: 22px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.sidebar-overlay {
+  display: none;
+}
+
+/* Cards */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 25px;
+}
+
+.stat-card {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.stat-card h4 {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.stat-card div {
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin-top: 8px;
+  color: #0f172a;
+}
+
+/* Panels */
+.panel {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+  min-width: 0;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 15px;
+}
+
+/* Tables */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  border: 1px solid #e2e8f0;
+  padding: 10px;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+th {
+  background: #f8fafc;
+}
+
+/* Buttons */
+.btn {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  background: #2563eb;
+  color: white;
+  margin: 2px;
+}
+
+.btn-secondary {
+  background: #64748b;
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* Tablet */
+@media (max-width: 900px) {
+  .sidebar {
+    width: 220px;
+  }
+
+  .content {
+    padding: 20px;
+  }
+
+  .header {
+    padding: 15px 20px;
+  }
+
+  .panel {
+    padding: 15px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 650px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: min(280px, 85vw);
+    height: 100vh;
+    overflow-y: auto;
+    z-index: 1001;
+    transform: translateX(-105%);
+    transition: transform 0.25s ease;
+  }
+
+  body.sidebar-open .sidebar {
+    transform: translateX(0);
+  }
+
+  .sidebar-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease;
+  }
+
+  body.sidebar-open .sidebar-overlay {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .menu-toggle {
+    display: block;
+  }
+
+  .header {
+    padding: 12px;
+    justify-content: flex-start;
+    align-items: flex-start;
+  }
+
+  .header-titles h1 {
+    font-size: 1.1rem;
+  }
+
+  .header-titles p {
+    font-size: 0.8rem;
+  }
+
+  .content {
+    padding: 12px;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .stat-card {
+    padding: 14px;
+  }
+
+  .stat-card div {
+    font-size: 1.5rem;
+  }
+
+  .panel {
+    padding: 12px;
+  }
+
+  .panel-header {
+    align-items: flex-start;
+  }
+
+  .panel-header h3 {
+    font-size: 1rem;
+  }
+
+  .table-responsive table {
+    min-width: 600px;
+  }
+
+  .btn {
+    padding: 8px 10px;
+    font-size: 0.8rem;
+  }
+}
+
+/* Very Small Phones */
+@media (max-width: 380px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .content {
+    padding: 8px;
+  }
+
+  .header {
+    padding: 10px;
+  }
+}
+
+/* Print Formatting */
+@media print {
+  .sidebar,
+  .header,
+  .btn,
+  .nav-btn,
+  .no-print,
+  .menu-toggle,
+  .sidebar-overlay {
+    display: none !important;
+  }
+
+  body,
+  .main-wrapper,
+  .content {
+    background: #fff;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+  }
+
+  .panel {
+    box-shadow: none;
+    border: none;
+    padding: 0;
+  }
+
+  .table-responsive {
+    overflow: visible;
+  }
+
+  table {
+    width: 100%;
+  }
+}
   </style>
 </head>
 <body>
@@ -55,18 +383,24 @@
     <button class="nav-btn active" onclick="switchTab('overview')">📊 Class Overview</button>
     <button class="nav-btn" onclick="switchTab('classlist')">📋 Class List & Print</button>
     <button class="nav-btn" onclick="switchTab('manageClass')">✏️ Manage Class</button>
+    <button class="nav-btn" onclick="switchTab('subjectMarks')">📝 Manage Subject Marks</button>
     <button class="nav-btn" onclick="switchTab('reportCards')">📑 Manage Report Cards</button>
     <button class="nav-btn" onclick="goTosubjectTeacherDashboard()">
-  📚 Subject Teacher Portal ➔
-</button>
+      📚 Subject Teacher Portal ➔
+    </button>
     <button id="logoutBtn" class="nav-btn btn-logout" onclick="handleLogout()">🚪 Logout</button>
   </div>
 
   <!-- Main Container -->
+  <div class="sidebar-overlay" onclick="closeSidebar()"></div>
   <div class="main-wrapper">
     
     <!-- Header displaying School Name and Class Teacher(s) -->
     <header class="header">
+      <button class="menu-toggle" type="button"
+              onclick="toggleSidebar()"
+              aria-label="Open navigation menu">☰</button>
+
       <div class="header-titles">
         <h1 id="headerSchoolName">School Name Loading...</h1>
         <p><strong>Class Teacher(s):</strong> <span id="headerTeacherNames">Loading...</span> | <strong>Class:</strong> <span id="headerClassName">Loading...</span></p>
@@ -101,19 +435,21 @@
             <h3>Class List (Alphabetical Order)</h3>
             <button class="btn" onclick="window.print()">🖨️ Print Class List</button>
           </div>
-          <table>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>LIN / ID</th>
-                <th>Full Name</th>
-                <th>Gender</th>
-              </tr>
-            </thead>
-            <tbody id="alphabeticalRosterBody">
-              <!-- Sorted rows inserted here -->
-            </tbody>
-          </table>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>LIN / ID</th>
+                  <th>Full Name</th>
+                  <th>Gender</th>
+                </tr>
+              </thead>
+              <tbody id="alphabeticalRosterBody">
+                <!-- Sorted rows inserted here -->
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -121,42 +457,105 @@
       <div id="tab-manageClass" class="tab-content">
         <div class="panel">
           <h3>Manage Student Information & Performance</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>LIN / ID</th>
-                <th>Full Name</th>
-                <th>Gender</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="manageClassBody">
-              <!-- Action rows inserted here -->
-            </tbody>
-          </table>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>LIN / ID</th>
+                  <th>Full Name</th>
+                  <th>Gender</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="manageClassBody">
+                <!-- Action rows inserted here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    
+      <!-- 4. MANAGE SUBJECT MARKS TAB -->
+      <div id="tab-subjectMarks" class="tab-content">
+        <div class="panel">
+          <h3>Manage Subject Marks for Class</h3>
+          <p style="color: #64748b; font-size: 0.9rem;">As a class teacher, you can view and update student marks across all subjects in your class.</p>
+
+         <div class="form-inline" style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; align-items: center;">
+            <!-- Subject Selector for the Class -->
+            <select id="classTeacherSubjectSelect" class="btn" style="background:#fff; color:#0f172a; border: 1px solid #cbd5e1;" onchange="loadClassSubjectMarks()">
+              <option value="">-- Select Subject --</option>
+            </select>
+
+            <!-- Assessment Type Selector -->
+            <select id="classTeacherExamType" class="btn" style="background:#fff; color:#0f172a; border: 1px solid #cbd5e1;" onchange="updateClassTeacherMaxLabel()">
+              <option value="A1" data-max="3">Chapter Assessment A1 (Out of 3)</option>
+              <option value="A2" data-max="3">Chapter Assessment A2 (Out of 3)</option>
+              <option value="A3" data-max="3">Chapter Assessment A3 (Out of 3)</option>
+              <option value="Formative" data-max="20">Formative Total (Out of 20)</option>
+              <option value="Summative" data-max="80">Summative Exam (Out of 80)</option>
+            </select>
+
+            <!-- Term Selector -->
+            <select id="classTeacherTermSelect" class="btn" style="background:#fff; color:#0f172a; border: 1px solid #cbd5e1;" onchange="loadClassSubjectMarks()">
+              <option value="1">Term 1</option>
+              <option value="2">Term 2</option>
+              <option value="3" selected>Term 3</option>
+            </select>
+
+            <!-- Custom Marked Out Of Input -->
+            <div style="display: flex; align-items: center; gap: 5px;">
+              <label style="font-size: 13px; font-weight: bold;">Marked Out Of:</label>
+              <input type="number" id="ctMarkedOutOfInput" value="100" style="width: 80px; padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px;" min="1" oninput="recalculateCtScores()" />
+            </div>
+          </div> 
+
+          
+         <!-- Marks Editing Table -->
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width: 60px;">S/N</th>
+                  <th>Student Name</th>
+                  <th style="width: 150px;">Raw Score</th>
+                  <th style="width: 180px;">Converted Score (<span id="ctTargetMaxDisplay">3</span>)</th>
+                </tr>
+              </thead>
+              <tbody id="classTeacherMarksBody">
+                <tr><td colspan="4" class="text-center">Please select a subject above to load student scores.</td></tr>
+              </tbody>
+            </table>
+          </div> 
+          <div style="margin-top: 15px;">
+            <button onclick="saveClassTeacherMarks()" class="btn" style="background: #28a745;">💾 Save Subject Marks</button>
+            <span id="classTeacherMsg" style="margin-left: 10px; font-weight: bold;"></span>
+          </div>
         </div>
       </div>
 
-      <!-- 4. MANAGE REPORT CARDS TAB -->
+      <!-- 5. MANAGE REPORT CARDS TAB -->
       <div id="tab-reportCards" class="tab-content">
         <div class="panel">
           <div class="panel-header">
             <h3>Report Cards Management</h3>
             <button class="btn" onclick="bulkPrintReportCards()">🖨️ Bulk Print All Report Cards</button>
           </div>
-          <table>
-            <thead>
-              <tr>
-                <th>LIN / ID</th>
-                <th>Full Name</th>
-                <th>Report Card Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="reportCardsBody">
-              <!-- Report card action rows inserted here -->
-            </tbody>
-          </table>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>LIN / ID</th>
+                  <th>Full Name</th>
+                  <th>Report Card Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="reportCardsBody">
+                <!-- Report card action rows inserted here -->
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -164,23 +563,30 @@
   </div>
 
  <script>
- 
   let currentStudents = [];
+  let activeClassId = ''; // Globally accessible for subject marks management
 
   // 1. Session Verification Function
   function checkSession() {
     const rawUser = localStorage.getItem('user');
     const user = rawUser ? JSON.parse(rawUser) : null;
-    const role = user?.role ? user.role.toString().trim().toLowerCase().replace('_', ' ') : '';
+    const role = user?.role ? user.role.toString().trim().toLowerCase().replace(/[\s_]+/g, '') : '';
 
-    if (!user || (role !== 'class teacher' && role !== 'class_teacher' && role !== 'teacher')) {
+    // Allow teachers, class teachers, or admins
+    if (!user || (!role.includes('teacher') && !role.includes('classteacher') && !role.includes('admin'))) {
       alert("Session expired or unauthorized access. Please log in.");
       window.location.href = '/login.html';
       return null;
     }
+
+    // Safely update welcome element if it exists in the DOM
+    const welcomeEl = document.getElementById('welcomeText');
+    if (welcomeEl) {
+      welcomeEl.innerText = `Logged in as: ${user.full_name || user.username || 'Teacher'}`;
+    }
+
     return user;
   }
-
   // Helper to extract active parameters from URL, user object, or localStorage
   function getActiveParams() {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -214,11 +620,20 @@
     return { schoolId, teacherId, classId, user };
   }
 
+  function toggleSidebar() {
+    document.body.classList.toggle('sidebar-open');
+  }
+
+  function closeSidebar() {
+    document.body.classList.remove('sidebar-open');
+  }
+
   // 2. Tab Switcher
   function switchTab(tabName) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-    
+    closeSidebar();
+
     const targetTab = document.getElementById(`tab-${tabName}`);
     if (targetTab) targetTab.classList.add('active');
     if (window.event && window.event.currentTarget) {
@@ -256,8 +671,8 @@
         headerClass.textContent = details.className || details.class_name || user.class_name || user.assigned_class_name || user.className || "No Assigned Class";
       }
 
-      // Resolve active class ID
-      const activeClassId = (classId && classId !== 'null' && classId !== 'undefined' && classId !== '') 
+      // Resolve active class ID globally
+      activeClassId = (classId && classId !== 'null' && classId !== 'undefined' && classId !== '') 
         ? classId 
         : (details.classId || details.class_id || user.class_id || user.assigned_class_id);
 
@@ -269,6 +684,9 @@
         } else {
           currentStudents = [];
         }
+
+        // Load subjects available for this class so the class teacher can pick any subject
+        loadClassTeacherSubjects(activeClassId);
       } else {
         currentStudents = [];
       }
@@ -391,6 +809,284 @@
     window.open(`/report-cards.html?classId=${classId}`, '_blank');
   }
 
+  // 1. Populate available subjects for the class teacher's class
+  async function loadClassTeacherSubjects(classId) {
+    try {
+      const { user } = getActiveParams();
+      const res = await fetch(`/api/schools/${user.school_id || 1}/assignments`);
+      const assignments = await res.json();
+      
+      const classAssignments = assignments.filter(a => String(a.class_id) === String(classId));
+      const subjectSelect = document.getElementById('classTeacherSubjectSelect');
+      
+      subjectSelect.innerHTML = '<option value="">-- Select Subject --</option>';
+      const uniqueSubjects = new Map();
+
+      classAssignments.forEach(a => {
+        if (a.subject_id && a.subject_name && !uniqueSubjects.has(a.subject_id)) {
+          uniqueSubjects.set(a.subject_id, a.subject_name);
+          subjectSelect.innerHTML += `<option value="${a.subject_id}" data-name="${a.subject_name}">${a.subject_name}</option>`;
+        }
+      });
+    } catch (err) {
+      console.error("Error loading subjects for class teacher:", err);
+    }
+  }
+
+// Update target max display label when assessment type changes
+  function updateClassTeacherMaxLabel() {
+    const select = document.getElementById('classTeacherExamType');
+    const selectedOption = select.options[select.selectedIndex];
+    const maxTarget = selectedOption.getAttribute('data-max') || '3';
+    document.getElementById('ctTargetMaxDisplay').innerText = maxTarget;
+    recalculateCtScores();
+    loadClassSubjectMarks();
+  }
+
+  // Live conversion calculation as the teacher types raw scores
+  function calculateCtConvertedScore(inputEl) {
+    const rawVal = parseFloat(inputEl.value);
+    const row = inputEl.closest('tr');
+    const convertedCell = row.querySelector('.ct-converted-cell');
+
+    if (isNaN(rawVal)) {
+      convertedCell.innerText = '-';
+      return;
+    }
+
+    const markedOutOf = parseFloat(document.getElementById('ctMarkedOutOfInput').value) || 100;
+    const select = document.getElementById('classTeacherExamType');
+    const targetMax = parseFloat(select.options[select.selectedIndex].getAttribute('data-max')) || 3;
+
+    // Proportion formula: (Raw / MarkedOutOf) * TargetMax
+    let converted = (rawVal / markedOutOf) * targetMax;
+    convertedCell.innerText = converted.toFixed(2);
+  }
+
+  // Recalculate all visible scores if "Marked Out Of" changes
+  function recalculateCtScores() {
+    document.querySelectorAll('.ct-score-input').forEach(input => {
+      if (input.value.trim() !== '') {
+        calculateCtConvertedScore(input);
+      }
+    });
+  }
+
+  // 2. Load students and their current marks for any selected subject in the class
+  async function loadClassSubjectMarks() {
+    const subjectSelect = document.getElementById('classTeacherSubjectSelect');
+    const selectedSubjectOption = subjectSelect.options[subjectSelect.selectedIndex];
+    const subjectId = subjectSelect.value;
+    const subjectName = selectedSubjectOption ? selectedSubjectOption.getAttribute('data-name') : '';
+    const term = document.getElementById('classTeacherTermSelect').value;
+    const examType = document.getElementById('classTeacherExamType').value;
+    const tbody = document.getElementById('classTeacherMarksBody');
+
+    if (!subjectId) {
+      tbody.innerHTML = '<tr><td colspan="4" class="text-center">Please select a subject above to load student scores.</td></tr>';
+      return;
+    }
+
+    try {
+      tbody.innerHTML = '<tr><td colspan="4" class="text-center">Loading student records...</td></tr>';
+      const { user } = getActiveParams();
+      const schoolId = user.school_id || 1;
+      
+      const reportsRes = await fetch(`/api/reports?school_id=${schoolId}&class_id=${activeClassId}&term=${term}`);
+      const reports = await reportsRes.json();
+
+      if (currentStudents.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center">No students found in this class.</td></tr>';
+        return;
+      }
+
+      const markedOutOf = parseFloat(document.getElementById('ctMarkedOutOfInput').value) || 100;
+      const select = document.getElementById('classTeacherExamType');
+      const targetMax = parseFloat(select.options[select.selectedIndex].getAttribute('data-max')) || 3;
+
+      tbody.innerHTML = currentStudents.map((s, index) => {
+        const studentId = s.id || s.student_id;
+        
+        let existingRaw = '';
+        const studentReport = reports.find(r => String(r.student_id) === String(studentId));
+        if (studentReport && studentReport.subjects && studentReport.subjects[subjectName]) {
+          const subData = studentReport.subjects[subjectName];
+          let storedScore = null;
+          if (examType === 'A1') storedScore = subData.a1;
+          else if (examType === 'A2') storedScore = subData.a2;
+          else if (examType === 'A3') storedScore = subData.a3;
+          else if (examType === 'Formative' || examType === 'Summative') storedScore = subData.summativeScore;
+
+          if (storedScore !== null && storedScore !== undefined && !isNaN(storedScore)) {
+            // Reverse calculate raw value to show what was previously stored
+            existingRaw = Number(((storedScore / targetMax) * markedOutOf).toFixed(1));
+          }
+        }
+
+        return `
+          <tr>
+            <td class="text-center"><strong>${index + 1}</strong></td>
+            <td><strong>${s.full_name}</strong> ${s.lin ? `(${s.lin})` : ''}</td>
+            <td>
+              <input 
+                type="number" 
+                step="any" 
+                min="0" 
+                max="${markedOutOf}" 
+                class="ct-score-input" 
+                data-student-id="${studentId}" 
+                value="${existingRaw}" 
+                placeholder="Raw / ${markedOutOf}"
+                oninput="calculateCtConvertedScore(this)"
+                onkeydown="handleScoreKeydown(event, this)"
+                style="width: 100%; padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px;"
+              />
+            </td>
+            <td class="text-center ct-converted-cell" style="font-weight: bold; color: #2563eb;">-</td>
+          </tr>
+        `;
+      }).join('');
+
+      recalculateCtScores();
+    } catch (err) {
+      console.error(err);
+      tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color: red;">Failed to load marks.</td></tr>';
+    }
+  }
+
+  // Keyboard Navigation Handler
+  function handleScoreKeydown(event, currentInput) {
+    if (['ArrowUp', 'ArrowDown', 'Enter'].includes(event.key)) {
+      event.preventDefault();
+      const inputs = Array.from(document.querySelectorAll('.ct-score-input'));
+      const currentIndex = inputs.indexOf(currentInput);
+
+      if (event.key === 'ArrowDown' || event.key === 'Enter') {
+        if (currentIndex < inputs.length - 1) {
+          inputs[currentIndex + 1].focus();
+          inputs[currentIndex + 1].select();
+        }
+      } else if (event.key === 'ArrowUp') {
+        if (currentIndex > 0) {
+          inputs[currentIndex - 1].focus();
+          inputs[currentIndex - 1].select();
+        }
+      }
+    }
+  }
+
+  // 3. Save modified marks back to the server with automatic conversion
+  async function saveClassTeacherMarks() {
+    const subjectSelect = document.getElementById('classTeacherSubjectSelect');
+    const subjectId = subjectSelect.value;
+    const term = parseInt(document.getElementById('classTeacherTermSelect').value, 10) || 1;
+    const examType = document.getElementById('classTeacherExamType').value;
+    const markedOutOf = parseFloat(document.getElementById('ctMarkedOutOfInput').value) || 100;
+    const select = document.getElementById('classTeacherExamType');
+    const targetMax = parseFloat(select.options[select.selectedIndex].getAttribute('data-max')) || 3;
+    const msg = document.getElementById('classTeacherMsg');
+
+    if (!subjectId) {
+      alert("Please select a subject first.");
+      return;
+    }
+
+    const scoreInputs = document.querySelectorAll('.ct-score-input');
+    const marksData = [];
+    const confirmationSummary = [];
+
+    try {
+      for (let i = 0; i < scoreInputs.length; i++) {
+        const input = scoreInputs[i];
+        const studentId = input.getAttribute('data-student-id');
+        const val = input.value.trim();
+        const studentName = input.closest('tr').querySelector('td:nth-child(2)').innerText;
+
+        if (studentId && val !== '') {
+          const rawNum = parseFloat(val);
+
+          if (rawNum > markedOutOf || rawNum < 0) {
+            alert(`Invalid score for ${studentName}. Raw score cannot exceed ${markedOutOf}.`);
+            input.focus();
+            return;
+          }
+
+          // Automatically convert raw score to target scale (3, 20, or 80)
+          const convertedScore = Number(((rawNum / markedOutOf) * targetMax).toFixed(2));
+
+          marksData.push({
+            student_id: parseInt(studentId, 10),
+            score: convertedScore
+          });
+          confirmationSummary.push(`S/N: ${i + 1} | ${studentName} | Raw: ${rawNum}/${markedOutOf} ➔ Converted: ${convertedScore}/${targetMax}`);
+        }
+      }
+
+      if (marksData.length === 0) {
+        alert("Please enter at least one score before saving.");
+        return;
+      }
+
+      const confirmMessage = `Ready to save marks for ${marksData.length} student(s):\n\n` + confirmationSummary.join('\n');
+      if (!confirm(confirmMessage)) return;
+
+      const { user } = getActiveParams();
+      const schoolId = user.school_id || 1;
+
+      const res = await fetch(`/api/schools/${schoolId}/record-marks`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          classId: activeClassId,
+          subjectId: parseInt(subjectId, 10),
+          examType,
+          term,
+          marksData
+        })
+      });
+
+      const result = await res.json();
+      if (res.ok) {
+        if (msg) {
+          msg.style.color = 'green';
+          msg.innerText = result.message || "Subject marks updated successfully!";
+          setTimeout(() => { msg.innerText = ''; }, 4000);
+        } else {
+          alert(result.message || "Subject marks updated successfully!");
+        }
+
+        // Reset dropdown and clear table
+        subjectSelect.value = "";
+        document.getElementById('classTeacherMarksBody').innerHTML = '<tr><td colspan="4" class="text-center">Please select a subject above to load student scores.</td></tr>';
+      } else {
+        throw new Error(result.error || "Failed to save marks.");
+      }
+    } catch (err) {
+      if (msg) {
+        msg.style.color = 'red';
+        msg.innerText = err.message;
+      } else {
+        alert(err.message);
+      }
+    }
+  }
+
+  function validateScoreInput(inputEl, maxLimit) {
+    const val = parseFloat(inputEl.value);
+    if (!isNaN(val)) {
+      if (val > maxLimit || val < 0) {
+        inputEl.style.borderColor = 'red';
+        inputEl.title = `Score must be between 0 and ${maxLimit}!`;
+      } else {
+        inputEl.style.borderColor = '#cbd5e1';
+        inputEl.title = '';
+      }
+    } else {
+      inputEl.style.borderColor = '#cbd5e1';
+      inputEl.title = '';
+    }
+  }
+
   // DOM Execution
   document.addEventListener("DOMContentLoaded", () => {
     const user = checkSession();
@@ -415,3 +1111,5 @@
     }
   });
 </script>
+</body>
+</html>

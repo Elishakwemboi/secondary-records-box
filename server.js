@@ -1,19 +1,38 @@
-require('dotenv').config(); // <-- Add this at the very top!
+require('dotenv').config();
 const express = require("express");
 const path = require("path");
 const sqlite3 = require("sqlite3").verbose();
 
 const app = express();
+const session = require("express-session");
+
+app.use(session({
+    secret: 'secondary_school_box_secret_key',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: false,      // Must be false for local HTTP development
+        httpOnly: true,     // Prevents client-side scripts from reading the cookie
+        maxAge: 24 * 60 * 60 * 1000 // 1 day session lifespan
+    }
+}));
 const dbPath = path.join(__dirname, "database.db");
 const db = new sqlite3.Database(dbPath);
 const { calculateReports } = require('./generate-report-card');
 
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+console.log(
+  "Gemini API key loaded:",
+  Boolean(process.env.GEMINI_API_KEY)
+);
+
 db.run("PRAGMA foreign_keys = ON");
 
 // Ensure subjects table exists and schools table has code column
 db.serialize(() => {
+    // 1. Subjects Table
     db.run(`
         CREATE TABLE IF NOT EXISTS subjects (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -23,20 +42,92 @@ db.serialize(() => {
             FOREIGN KEY (school_id) REFERENCES schools(id)
         )
     `);
+
+    // 2. School Term Settings Table
     db.run(`
-  CREATE TABLE IF NOT EXISTS school_term_settings (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    school_id INTEGER DEFAULT 1,
-    term_name TEXT, -- e.g., 'Term 1', 'Term 2', 'Term 3'
-    closing_date TEXT,
-    next_term_opening_date TEXT,
-    default_next_term_fees REAL,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(school_id, term_name)
-  )
-`);
+        CREATE TABLE IF NOT EXISTS school_term_settings (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            school_id INTEGER NOT NULL,
+            term_name TEXT NOT NULL,
+            closing_date TEXT,
+            next_term_opening_date TEXT,
+            default_next_term_fees REAL,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (school_id) REFERENCES schools(id)
+        )
+    `);
+
+    // 3. Users Table
+    db.run(`
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            email TEXT UNIQUE NOT NULL,
+            password_hash TEXT NOT NULL,
+            full_name TEXT NOT NULL,
+            is_active INTEGER DEFAULT 1,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    `);
+
+    // 4. User Roles Mapping Table
+    db.run(`
+        CREATE TABLE IF NOT EXISTS user_roles (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            role_name TEXT NOT NULL,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        )
+    `);
+
+    // 5. Teacher Subject Allocations Table
+    db.run(`
+        CREATE TABLE IF NOT EXISTS subject_allocations (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            teacher_id INTEGER,
+            class_id TEXT NOT NULL,
+            stream_id TEXT NOT NULL,
+            subject_name TEXT NOT NULL,
+            FOREIGN KEY (teacher_id) REFERENCES users(id) ON DELETE CASCADE
+        )
+    `);
+
+    // 6. Class Teacher Allocations Table
+    db.run(`
+        CREATE TABLE IF NOT EXISTS class_teacher_allocations (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            teacher_id INTEGER,
+            class_id TEXT NOT NULL,
+            stream_id TEXT NOT NULL,
+            FOREIGN KEY (teacher_id) REFERENCES users(id) ON DELETE CASCADE
+        )
+    `);
+});
 db.all(`SELECT st.school_id, st.full_name, c.name as class_name, m.term, m.score FROM marks m JOIN students st ON m.student_id = st.id JOIN classes c ON st.class_id = c.id`, [], (err, rows) => {
   console.log("=== DB MARKS CHECK ===", rows);
+});
+db.all("PRAGMA table_info(school_term_settings)", (err, rows) => {
+    if (err) {
+        console.error("Table check error:", err);
+    } else {
+        console.log("SCHOOL TERM SETTINGS COLUMNS:", rows);
+    }
+});
+db.all("SELECT * FROM school_term_settings", (err, rows) => {
+    if (err) {
+        console.error(err);
+    } else {
+        console.log("EXISTING TERM SETTINGS:", rows);
+    }
+});
+// Automatically ensure school_id exists in school_term_settings without losing data
+db.run(`ALTER TABLE school_term_settings ADD COLUMN school_id INTEGER;`, (err) => {
+  if (err) {
+    // Column likely already exists, which is safe to ignore
+    console.log("school_term_settings table check: school_id column already present or handled.");
+  } else {
+    console.log("Successfully migrated: Added school_id column to school_term_settings!");
+  }
 });
 db.all("PRAGMA table_info(marks)", [], (err, rows) => {
   if (err) {
@@ -100,7 +191,6 @@ db.run("ALTER TABLE classes ADD COLUMN class_teacher_id INTEGER;", (err) => {
     db.run("ALTER TABLE classes ADD COLUMN teacher_id INTEGER;", (err) => {
         // Ignore error if column already exists
     });
-});
 db.run("ALTER TABLE students ADD COLUMN gender TEXT", (err) => {
   if (err) {
     console.log("Gender column already exists or migration skipped:", err.message);
@@ -132,6 +222,63 @@ app.get("/", (req, res) => {
 db.run("ALTER TABLE classes ADD COLUMN teacher_id INTEGER;", (err) => {
     // Ignore error if column already exists
 });
+
+// Middleware to restrict dashboard access based on allowed roles
+function requireRole(allowedRoles) {
+    const rolesArray = Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles];
+    const cleanAllowedRoles = rolesArray.map(r => r.trim().toLowerCase().replace(/[\s_]+/g, ''));
+
+    return async (req, res, next) => {
+        // 1. Check if user is logged in and session exists
+        if (!req.session || !req.session.user) {
+            if (req.xhr || req.headers.accept?.includes('json')) {
+                return res.status(401).json({ error: "Unauthorized: Please log in first." });
+            }
+            return res.redirect('/login.html'); //
+        }
+
+        const userRole = req.session.user.activeRole || req.session.user.role || '';
+        const cleanUserRole = userRole.trim().toLowerCase().replace(/[\s_]+/g, '');
+        
+        const isSuperAdmin = cleanUserRole.includes('superadmin');
+        const isAuthorized = cleanAllowedRoles.includes(cleanUserRole) || 
+                             cleanAllowedRoles.some(allowed => cleanUserRole.includes(allowed));
+
+        if (!isAuthorized && !isSuperAdmin) {
+            console.warn(`[Security] Unauthorized access attempt: User ID ${req.session.user.id} with role "${userRole}" tried to access restricted route.`);
+            
+            if (req.xhr || req.headers.accept?.includes('json')) {
+                return res.status(403).json({ error: "Access Denied: You do not have permission to view this dashboard." });
+            }
+            
+            return res.status(403).send(`
+                <div style="font-family: sans-serif; text-align: center; margin-top: 50px;">
+                    <h2 style="color: #d9534f;">403 - Access Denied</h2>
+                    <p>You are logged in as a <strong>${userRole}</strong> and do not have permission to access this page.</p>
+                    <a href="/dashboard/subject-teacher" style="color: #337ab7; text-decoration: none;">Return to your Dashboard</a>
+                </div>
+            `);
+        }
+
+        // 2. Safe optional check for Class Teachers (wrapped to prevent crashes if table is missing)
+        if (cleanUserRole.includes('classteacher') || cleanUserRole.includes('classteacher')) {
+            db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='class_teacher_allocations'", [], (tableErr, tableRow) => {
+                if (tableRow) {
+                    db.get("SELECT * FROM class_teacher_allocations WHERE teacher_id = ?", [req.session.user.id], (err, row) => {
+                        if (!err && row) {
+                            req.session.hasStreamAllocation = true;
+                        }
+                        next();
+                    });
+                } else {
+                    next(); // Skip safely if table hasn't been migrated yet
+                }
+            });
+        } else {
+            next();
+        }
+    };
+}
 
 // Helper functions for parameter cleaning
 function cleanTerm(raw) {
@@ -204,12 +351,13 @@ app.post("/api/schools", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
-// API: Login
+
+// API: Login with Role and Allocation Restrictions
+
 app.post("/api/login", async (req, res) => {
-  // 1. Extract and sanitize inputs
   const rawEmail = req.body.email || req.body.username;
   const rawPassword = req.body.password;
-  const selectedRole = req.body.role; // Optional: read role if sent from frontend
+  const selectedRole = req.body.role || req.body.selectedRole;
 
   if (!rawEmail || !rawPassword) {
     return res.status(400).json({ error: "Email and password are required" });
@@ -218,7 +366,6 @@ app.post("/api/login", async (req, res) => {
   const cleanEmail = rawEmail.trim().toLowerCase();
   const cleanPassword = rawPassword.trim();
 
-  // 2. Query user by lowercased email
   const sql = `
     SELECT 
       u.id, 
@@ -239,43 +386,127 @@ app.post("/api/login", async (req, res) => {
     }
 
     if (!user) {
-      return res.status(401).json({ error: "Invalid email or password" });
+      return res.status(401).json({ error: "Invalid username/email or password" });
     }
 
     try {
-      // 3. Proper password hash verification using bcrypt
-      // (Supports hashed passwords from password resets)
       let isPasswordValid = await bcrypt.compare(cleanPassword, user.password_hash);
-
-      // Fallback: If you previously stored plaintext passwords in the DB during development
       if (!isPasswordValid && user.password_hash === cleanPassword) {
         isPasswordValid = true;
       }
 
       if (!isPasswordValid) {
-        return res.status(401).json({ error: "Invalid email or password" });
+        return res.status(401).json({ error: "Invalid username/email or password" });
       }
 
-      // 4. (Optional) Role Validation check if role is passed from dropdown
-      if (selectedRole) {
-        const normalizedDbRole = user.role ? user.role.toLowerCase().replace(/\s+/g, '_') : '';
-        const normalizedInputRole = selectedRole.toLowerCase().replace(/\s+/g, '_');
+      const activeRole = selectedRole || user.role;
 
-        if (normalizedDbRole !== normalizedInputRole) {
-          console.log(`[DEBUG] Role mismatch: Selected "${selectedRole}", DB stored "${user.role}"`);
-          return res.status(401).json({ error: "Invalid email or password" });
+      // Role authorization check
+      if (selectedRole) {
+        const dbRole = (user.role || "").trim().toLowerCase().replace(/[\s_]+/g, '');
+        const inputRole = selectedRole.trim().toLowerCase().replace(/[\s_]+/g, '');
+
+        const isSuperAdmin = dbRole.includes('superadmin');
+        const isMatchingRole = dbRole === inputRole || dbRole.includes(inputRole) || inputRole.includes(dbRole);
+
+        if (!isSuperAdmin && !isMatchingRole) {
+          return res.status(403).json({ 
+            error: `Access denied: You are not authorized for the '${selectedRole}' role.` 
+          });
         }
       }
 
-      // Clean up sensitive fields before sending back to client
-      delete user.password_hash;
+      // Helper function for session setup
+      function completeLogin(currentUser, assignedRole) {
+        const finalRole = (currentUser.role && currentUser.role.toLowerCase() === 'super admin') ? 'Super Admin' : (assignedRole || currentUser.role);
 
-      return res.json({ message: "Login successful", user });
+        req.session.user = {
+          id: currentUser.id,
+          email: currentUser.email,
+          fullName: currentUser.full_name,
+          activeRole: finalRole,
+          schoolId: currentUser.school_id
+        };
+
+        req.session.save((saveErr) => {
+          if (saveErr) {
+            console.error("Session save error:", saveErr);
+            return res.status(500).json({ error: "Internal server error during session creation" });
+          }
+
+          let redirectUrl = '/dashboard/subject-teacher';
+          const roleLower = finalRole.toLowerCase();
+
+          if (roleLower.includes('super admin')) {
+            redirectUrl = '/dashboard/super-admin';
+          } else if (roleLower.includes('school admin') || roleLower.includes('admin')) {
+            redirectUrl = '/dashboard/admin';
+          } else if (roleLower.includes('class teacher')) {
+            redirectUrl = '/dashboard/class-teacher';
+          }
+
+          // FIX APPLIED HERE: Added the 'user' object to the response payload 
+          // so the frontend can populate localStorage correctly.
+          return res.json({ 
+            success: true, 
+            message: "Login successful", 
+            redirectUrl: redirectUrl,
+            user: {
+              id: currentUser.id,
+              full_name: currentUser.full_name,
+              role: finalRole,
+              school_id: currentUser.school_id,
+              school_name: currentUser.school_name || "School Portal"
+            }
+          });
+        });
+      }
+
+      // Class Teacher allocation check
+      if (activeRole && activeRole.toLowerCase() === 'class teacher') {
+        db.get("SELECT * FROM class_teacher_allocations WHERE teacher_id = ?", [user.id], (allocErr, allocation) => {
+          if (allocErr) {
+            console.error("Error checking class allocation:", allocErr);
+            return res.status(500).json({ error: "Internal server error during authorization check" });
+          }
+
+          if (!allocation) {
+            return res.status(403).json({ 
+              error: "Access denied: You are not assigned as a Class Teacher for any stream." 
+            });
+          }
+
+          return completeLogin(user, activeRole);
+        });
+      } else {
+        return completeLogin(user, activeRole);
+      }
+
     } catch (bcryptErr) {
-      console.error("Error comparing passwords:", bcryptErr);
+      console.error("Error during authentication processing:", bcryptErr);
       return res.status(500).json({ error: "Internal server error" });
     }
   });
+});
+
+// 1. Super Admin Dashboard Route
+app.get('/dashboard/super-admin', requireRole(['Super Admin']), (req, res) => {
+    res.sendFile(path.join(__dirname, '/public/super-admin.html'));
+});
+
+// 2. School Admin Dashboard Route
+app.get('/dashboard/admin', requireRole(['School Admin', 'Super Admin']), (req, res) => {
+    res.sendFile(path.join(__dirname, '/public/dashboard.html'));
+});
+
+// 3. Class Teacher Dashboard Route
+app.get('/dashboard/class-teacher', requireRole(['Class Teacher', 'class_teacher', 'classteacher', 'Super Admin']), (req, res) => {
+    res.sendFile(path.join(__dirname, '/public/class-teacher-dashboard.html'));
+});
+
+// Subject Teacher Dashboard
+app.get('/dashboard/subject-teacher', requireRole(['Subject Teacher', 'Teacher', 'teacher', 'class teacher', 'class_teacher', 'Super Admin']), (req, res) => {
+    res.sendFile(path.join(__dirname, '/public/teacher-dashboard.html'));
 });
 
 // API: Forgot Password
@@ -608,8 +839,8 @@ app.all("/api/reports", (req, res) => {
           }
           const allSchoolSubjects = subjectsRows || [];
 
-          // 2. Query matching students, subjects, marks, and term settings
-          let query = `
+        // 2. Query matching students, subjects, marks, and dynamic term settings
+         let query = `
             SELECT
               st.id AS student_id,
               st.full_name AS student_name,
@@ -622,9 +853,9 @@ app.all("/api/reports", (req, res) => {
               sch.name AS school_name,
               COALESCE(t.full_name, '-') AS subject_teacher,
               0 AS fees_balance,
-              ? AS fees_next_term,
-              ? AS term_ended_on,
-              ? AS next_term_begins
+              COALESCE(ts.default_next_term_fees, 0) AS fees_next_term,
+              COALESCE(ts.closing_date, '-') AS term_ended_on,
+              COALESCE(ts.next_term_opening_date, '-') AS next_term_begins
             FROM students st
             JOIN classes c ON st.class_id = c.id
             JOIN schools sch ON st.school_id = sch.id
@@ -635,23 +866,23 @@ app.all("/api/reports", (req, res) => {
             LEFT JOIN users t ON ta.teacher_id = t.id
             LEFT JOIN marks rm ON rm.student_id = st.id 
               AND rm.subject_id = sub.id 
+              AND rm.term = ?
+            LEFT JOIN school_term_settings ts ON ts.school_id = st.school_id 
               AND (
-                CAST(rm.term AS TEXT) = ?
-                OR LOWER(TRIM(CAST(rm.term AS TEXT))) = ?
-                OR LOWER(TRIM(CAST(rm.term AS TEXT))) = ?
+                ts.term_name = ? 
+                OR LOWER(TRIM(ts.term_name)) LIKE ?
               )
-            WHERE st.school_id = ?
+            WHERE st.school_id = ? AND st.class_id = ?
           `;
 
           const sqlParams = [
-            defaultFeesNext,
-            closingDate,
-            openingDate,
-            String(termNum),
-            String(rawTerm).trim().toLowerCase(),
-            `term ${termNum}`.toLowerCase(),
-            schoolId
+            termNum,                  // For rm.term
+            termNum,                  // For ts.term_name exact match
+            `%${termNum}%`,           // For ts.term_name LIKE match
+            schoolId,                 // For WHERE st.school_id
+            classVal                   // For WHERE st.class_id
           ];
+
           // Filter by student or class
           if (
             studentId !== null &&
@@ -1309,6 +1540,7 @@ app.put('/api/schools/:schoolId/classes/:classId/assign-teacher', (req, res) => 
     });
   });
 });
+
 // GET /api/schools/:schoolId/teachers
 app.get('/api/schools/:schoolId/teachers', (req, res) => {
   const { schoolId } = req.params;
@@ -1363,14 +1595,19 @@ app.get("/api/super-admin/schools", (req, res) => {
   });
 });
 
-// Route for School Admin to update term settings & default fees guidelines
+// Route for School Admin to update/insert term settings per school
 app.post('/api/admin/term-settings', (req, res) => {
   let { 
+    school_id,
     term_name, 
     closing_date, 
     next_term_opening_date, 
     default_next_term_fees 
   } = req.body;
+
+  if (!school_id || !term_name) {
+    return res.status(400).json({ success: false, message: 'school_id and term_name are required.' });
+  }
 
   // Sanitize dates
   closing_date = closing_date ? new Date(closing_date).toISOString().split('T')[0] : null;
@@ -1380,27 +1617,27 @@ app.post('/api/admin/term-settings', (req, res) => {
     ? parseFloat(default_next_term_fees) 
     : null;
 
-  // 1. Try updating the existing settings row (id = 1)
+  // 1. Try updating the existing settings row for this specific school and term
   const updateQuery = `
     UPDATE school_term_settings 
-    SET term_name = ?, closing_date = ?, next_term_opening_date = ?, default_next_term_fees = ?, updated_at = CURRENT_TIMESTAMP
-    WHERE id = 1;
+    SET closing_date = ?, next_term_opening_date = ?, default_next_term_fees = ?, updated_at = CURRENT_TIMESTAMP
+    WHERE school_id = ? AND term_name = ?;
   `;
 
-  db.run(updateQuery, [term_name || 'Current Term', closing_date, next_term_opening_date, parsedNextFees], function(err) {
+  db.run(updateQuery, [closing_date, next_term_opening_date, parsedNextFees, school_id, term_name], function(err) {
     if (err) {
       console.error('Error updating admin term settings:', err);
       return res.status(500).json({ success: false, message: 'Internal server error.' });
     }
 
-    // 2. If no row existed to update, perform an insert for id = 1
+    // 2. If no row existed, perform an insert
     if (this.changes === 0) {
       const insertQuery = `
-        INSERT INTO school_term_settings (id, term_name, closing_date, next_term_opening_date, default_next_term_fees, updated_at)
-        VALUES (1, ?, ?, ?, ?, CURRENT_TIMESTAMP);
+        INSERT INTO school_term_settings (school_id, term_name, closing_date, next_term_opening_date, default_next_term_fees, updated_at)
+        VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP);
       `;
       
-      db.run(insertQuery, [term_name || 'Current Term', closing_date, next_term_opening_date, parsedNextFees], function(insertErr) {
+      db.run(insertQuery, [school_id, term_name, closing_date, next_term_opening_date, parsedNextFees], function(insertErr) {
         if (insertErr) {
           console.error('Error inserting admin term settings:', insertErr);
           return res.status(500).json({ success: false, message: 'Internal server error.' });
@@ -1808,15 +2045,11 @@ app.get('/api/download-report-cards', async (req, res) => {
     }
 });
 
-const router = express.Router();
-// Assuming you are using pool or db instance from your setup (e.g., PostgreSQL or SQLite
-
 // Route to save or update term-end details and fees on a student's report
-router.post('/api/reports/:reportId/term-details', async (req, res) => {
+app.post('/api/reports/:reportId/term-details', async (req, res) => {
   try {
     const { reportId } = req.params;
     
-    // Extract fields from request body
     let { 
       closing_date, 
       next_term_opening_date, 
@@ -1824,7 +2057,6 @@ router.post('/api/reports/:reportId/term-details', async (req, res) => {
       next_term_fees 
     } = req.body;
 
-    // --- Validation & Sanitization Logic ---
     closing_date = closing_date ? new Date(closing_date).toISOString().split('T')[0] : null;
     next_term_opening_date = next_term_opening_date ? new Date(next_term_opening_date).toISOString().split('T')[0] : null;
     
@@ -1853,7 +2085,6 @@ router.post('/api/reports/:reportId/term-details', async (req, res) => {
       }
     }
 
-    // --- SQLite Database Update Query ---
     const query = `
       UPDATE student_term_reports 
       SET 
@@ -1886,7 +2117,6 @@ router.post('/api/reports/:reportId/term-details', async (req, res) => {
         return res.status(404).json({ success: false, message: 'Report record not found.' });
       }
 
-      // Fetch updated record to return
       db.get(`SELECT * FROM student_term_reports WHERE id = ?`, [reportId], (fetchErr, updatedRow) => {
         return res.status(200).json({
           success: true,
@@ -1905,7 +2135,6 @@ router.post('/api/reports/:reportId/term-details', async (req, res) => {
   }
 });
 
-module.exports = router;
 /* =====================================================
    NCDC TEACHER PLANNER API ROUTES
    Model: gemini-3.8-flash
@@ -1930,7 +2159,44 @@ function parsePlannerResponseJson(responseText) {
   cleaned = cleaned.substring(firstBrace, lastBrace + 1);
   return JSON.parse(cleaned);
 }
+// Retry Gemini requests when the service is temporarily busy
+async function generateWithRetry(model, prompt, maxRetries = 3) {
+  let attempt = 0;
 
+  while (true) {
+    try {
+      return await model.generateContent(prompt);
+
+    } catch (error) {
+      const status = error.status || error.statusCode ||
+                     error.response?.status;
+
+      const message = String(error.message || "").toLowerCase();
+
+      const isDailyQuotaError =
+        message.includes("per day") ||
+        message.includes("daily limit");
+
+      const isTemporaryError =
+        [429, 500, 502, 503, 504].includes(Number(status));
+
+      if (!isTemporaryError || isDailyQuotaError ||
+          attempt >= maxRetries) {
+        throw error;
+      }
+
+      attempt++;
+
+      const delay = Math.pow(2, attempt) * 1000;
+
+      console.log(
+        `Gemini temporarily unavailable. Retry ${attempt}/${maxRetries} in ${delay / 1000} seconds.`
+      );
+
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+}
 
 // =====================================================
 // 1. GENERATE LESSON PLAN
@@ -2111,7 +2377,7 @@ IMPORTANT:
       }
     });
 
-    const result = await model.generateContent(prompt);
+    const result = await generateWithRetry(model, prompt);
     const responseText = await result.response.text();
     const parsedData = parsePlannerResponseJson(responseText);
 
@@ -2276,7 +2542,7 @@ IMPORTANT:
       }
     });
 
-    const result = await model.generateContent(prompt);
+    const result = await generateWithRetry(model, prompt);
     const responseText = await result.response.text();
     const parsedData = parsePlannerResponseJson(responseText);
 
@@ -2330,6 +2596,7 @@ IMPORTANT:
     });
   }
 });
+
 
 const PORT = process.env.PORT || 3000;
 

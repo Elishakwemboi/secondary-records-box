@@ -42,23 +42,98 @@
     /* Tab Display Switching */
     .tab-content { display: none; }
     .tab-content.active { display: block; }
+    
+    /* App Container layout to support absolute/fixed positioning */
+    .app-container {
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Sidebar: Hidden off-screen by default on mobile */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: -280px;
+      width: 280px;
+      transition: left 0.3s ease-in-out;
+      z-index: 1000;
+      box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Active state when toggled on mobile */
+    .sidebar.active {
+      left: 0;
+    }
+
+    /* Mobile header inside the sidebar */
+    .sidebar-header-mobile {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+    }
+
+    /* Close button style */
+    .icon-btn {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: inherit;
+      padding: 0.25rem 0.5rem;
+    }
+
+    /* Semi-transparent background overlay when sidebar is open */
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 999;
+    }
+
+    .sidebar-overlay.active {
+      display: block;
+    }
+
+    /* Desktop override: Keep sidebar fixed/visible on larger screens */
+    @media (min-width: 768px) {
+      .sidebar {
+        left: 0 !important;
+        position: sticky;
+      }
+      
+      .sidebar-header-mobile .icon-btn,
+      .sidebar-overlay {
+        display: none !important;
+      }
+    }
   </style>
 </head>
 <body>
 
-  <!-- Sidebar Navigation -->
-  <div class="sidebar">
-    <div class="sidebar-top">
+ <button id="toggle-sidebar" class="menu-btn">☰ Menu</button>
+
+<!-- Sidebar Navigation -->
+<aside id="sidebar" class="sidebar">
+  <div class="sidebar-top">
+    <div class="sidebar-header-mobile">
       <h2>Teacher Portal</h2>
-      <button class="nav-btn active" onclick="switchTab('allocations', this)">📚 My Allocations</button>
-      <button class="nav-btn" onclick="switchTab('students', this)">👥 Class Students</button>
-      <button class="nav-btn" onclick="switchTab('marks', this)">📝 Record Assessment Marks</button>
+      <button id="close-sidebar" class="icon-btn">&times;</button>
     </div>
-    
-    <div class="sidebar-bottom">
-      <button class="sidebar-logout-btn" onclick="logout()">🚪 Logout</button>
-    </div>
+    <button class="nav-btn active" onclick="switchTab('allocations', this)">📚 My Allocations</button>
+    <button class="nav-btn" onclick="switchTab('students', this)">👥 Class Students</button>
+    <button class="nav-btn" onclick="switchTab('marks', this)">📝 Record Assessment Marks</button>
   </div>
+  
+  <div class="sidebar-bottom">
+    <button class="sidebar-logout-btn" onclick="logout()">🚪 Logout</button>
+  </div>
+</aside>
+
+<!-- Background overlay for mobile -->
+<div id="sidebar-overlay" class="sidebar-overlay"></div>
 
   <!-- Main Container -->
   <div class="main-wrapper">
@@ -126,13 +201,13 @@
               <option value="3">Term 3</option>
             </select>
 
-           <select id="assessmentTypeSelect" onchange="updateMaxScoreLabel()">
-  <option value="A1" data-max="3">Average Chapter Assessment (A1 / Out of 3)</option>
-  <option value="A2" data-max="3">Average Chapter Assessment (A2 / Out of 3)</option>
-  <option value="A3" data-max="3">Average Chapter Assessment (A3 / Out of 3)</option>
-  <option value="Formative" data-max="20">Formative Total (Out of 20)</option>
-  <option value="Summative" data-max="80">Summative / End of Term (Out of 80)</option>
-</select> 
+            <select id="assessmentTypeSelect" onchange="updateMaxScoreLabel()">
+              <option value="A1" data-max="3">Average Chapter Assessment (A1 / Out of 3)</option>
+              <option value="A2" data-max="3">Average Chapter Assessment (A2 / Out of 3)</option>
+              <option value="A3" data-max="3">Average Chapter Assessment (A3 / Out of 3)</option>
+              <option value="Formative" data-max="20">Formative Total (Out of 20)</option>
+              <option value="Summative" data-max="80">Summative / End of Term (Out of 80)</option>
+            </select> 
 
             <div>
               <label style="font-size: 13px; font-weight: bold;">Marked Out Of:</label>
@@ -154,11 +229,11 @@
             </tbody>
           </table>
 
-         <div style="display: flex; gap: 10px; margin-top: 15px; align-items: center;">
-  <button onclick="submitAssessmentMarks()" style="background: #28a745;">💾 Save Marks</button>
-  <button onclick="loadExistingMarks()" style="background: #007bff;">📂 Load Existing Marks</button>
-  <div id="markMsg" style="font-weight: bold; margin-left: 10px;"></div>
-</div> 
+          <div style="display: flex; gap: 10px; margin-top: 15px; align-items: center;">
+            <button onclick="submitAssessmentMarks()" style="background: #28a745;">💾 Save Marks</button>
+            <button onclick="loadExistingMarks()" style="background: #007bff;">📂 Load Existing Marks</button>
+            <div id="markMsg" style="font-weight: bold; margin-left: 10px;"></div>
+          </div> 
         </div>
       </div>
 
@@ -172,17 +247,25 @@
       
       document.getElementById(`tab-${tabName}`).classList.add('active');
       btnElement.classList.add('active');
+
+      if (window.innerWidth < 768) {
+        const sidebar = document.getElementById("sidebar");
+        const overlay = document.getElementById("sidebar-overlay");
+        if (sidebar) sidebar.classList.remove("active");
+        if (overlay) overlay.classList.remove("active");
+      }
     }
 
     const rawUser = localStorage.getItem('user');
     const user = rawUser ? JSON.parse(rawUser) : null;
-    const role = user?.role ? user.role.toString().trim().toLowerCase().replace('_', ' ') : '';
+    const role = user?.role ? user.role.toString().trim().toLowerCase().replace(/[\s_]+/g, '') : '';
 
-    if (!user || (role !== 'teacher' && role !== 'class teacher' && role !== 'subject teacher')) {
+    // Bulletproof role checking matching server-side normalization
+    if (!user || (!role.includes('teacher') && !role.includes('classteacher') && !role.includes('subjectteacher') && !role.includes('superadmin'))) {
       alert("Access denied. Please log in as a teacher.");
       window.location.href = '/login.html';
     } else {
-      document.getElementById('welcomeText').innerText = `Logged in as: ${user.full_name}`;
+      document.getElementById('welcomeText').innerText = `Logged in as: ${user.full_name || user.username}`;
       loadTeacherAllocations();
     }
 
@@ -253,44 +336,6 @@
 
     async function loadClassStudents() {
       const classSelectEl = document.getElementById('classSelect');
-      const selectedClassId = classSelectEl.value;
-      const studentList = document.getElementById('studentList');
-
-      if (!selectedClassId) {
-        studentList.innerHTML = '<li>Select a class to view enrolled students.</li>';
-        return;
-      }
-
-      try {
-        const res = await fetch(`/api/schools/${user.school_id}/students`);
-        const allStudents = await res.json();
-        
-        const filteredStudents = allStudents.filter(s => String(s.class_id || '') === String(selectedClassId));
-        filteredStudents.sort((a, b) => (a.full_name || '').localeCompare(b.full_name || ''));
-
-        if (filteredStudents.length === 0) {
-          studentList.innerHTML = `<li>No students found in this class.</li>`;
-          return;
-        }
-
-        studentList.innerHTML = filteredStudents.map((s, idx) => `
-          <li><strong>${idx + 1}. ${s.full_name}</strong> ${s.lin ? `(LIN: ${s.lin})` : ''}</li>
-        `).join('');
-      } catch (err) {
-        studentList.innerHTML = '<li>Error loading students.</li>';
-      }
-    }
-
-    function updateMaxScoreLabel() {
-      const select = document.getElementById('assessmentTypeSelect');
-      const selectedOption = select.options[select.selectedIndex];
-      const maxTarget = selectedOption.getAttribute('data-max') || '80';
-      document.getElementById('targetMaxDisplay').innerText = maxTarget;
-      recalculateAllScores();
-    }
-
-    async function loadClassStudents() {
-      const classSelectEl = document.getElementById('classSelect');
       const selectedOption = classSelectEl.options[classSelectEl.selectedIndex];
       const selectedClassId = selectedOption ? selectedOption.value : '';
       const selectedClassName = selectedOption ? (selectedOption.getAttribute('data-name') || selectedOption.text).trim().toLowerCase() : '';
@@ -324,6 +369,14 @@
       } catch (err) {
         studentList.innerHTML = '<li>Error loading students.</li>';
       }
+    }
+
+    function updateMaxScoreLabel() {
+      const select = document.getElementById('assessmentTypeSelect');
+      const selectedOption = select.options[select.selectedIndex];
+      const maxTarget = selectedOption.getAttribute('data-max') || '80';
+      document.getElementById('targetMaxDisplay').innerText = maxTarget;
+      recalculateAllScores();
     }
 
     async function loadClassStudentsForMarks() {
@@ -348,7 +401,6 @@
           return sClassId === String(selectedClassId) || sClassName === selectedClassName;
         });
         
-        // Sort students alphabetically by full name
         filteredStudents.sort((a, b) => (a.full_name || '').localeCompare(b.full_name || ''));
 
         if (filteredStudents.length === 0) {
@@ -383,6 +435,7 @@
         tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:red;">Error loading students.</td></tr>';
       }
     }
+
     function calculateConvertedScore(inputEl) {
       const rawVal = parseFloat(inputEl.value);
       const row = inputEl.closest('tr');
@@ -395,19 +448,9 @@
 
       const markedOutOf = parseFloat(document.getElementById('markedOutOfInput').value) || 100;
       const select = document.getElementById('assessmentTypeSelect');
-      const examType = select.value;
       const targetMax = parseFloat(select.options[select.selectedIndex].getAttribute('data-max')) || 80;
 
-      let converted = 0;
-
-      if (examType === 'A1' || examType === 'A2' || examType === 'A3') {
-        // Chapter assessments scale conversion
-        converted = (rawVal / markedOutOf) * targetMax;
-      } else {
-        // Standard proportion calculation for Formative or Summative
-        converted = (rawVal / markedOutOf) * targetMax;
-      }
-
+      let converted = (rawVal / markedOutOf) * targetMax;
       convertedCell.innerText = converted.toFixed(1);
     }
 
@@ -418,6 +461,7 @@
         }
       });
     }
+
     function handleScoreKeydown(event, currentInput) {
       if (['ArrowUp', 'ArrowDown', 'Enter'].includes(event.key)) {
         event.preventDefault();
@@ -515,6 +559,11 @@
           } else {
             alert(data.message || "Marks saved successfully!");
           }
+
+          // RESET FORM & CLEAR TABLE SO TEACHER CAN LOAD ANOTHER SUBJECT
+          classSelect.value = "";
+          subjectSelect.value = "";
+          document.getElementById('marksTableBody').innerHTML = '<tr><td colspan="4" class="text-center">Select a class to load students.</td></tr>';
         } else {
           throw new Error(data.error || "Failed to save marks.");
         }
@@ -527,7 +576,8 @@
         }
       }
     }
-async function loadExistingMarks() {
+
+    async function loadExistingMarks() {
       const schoolId = user?.school_id || 1;
       const classSelect = document.getElementById('markClassSelect');
       const subjectSelect = document.getElementById('markSubjectSelect');
@@ -548,7 +598,6 @@ async function loadExistingMarks() {
       const examType = assessmentTypeSelect.value;
 
       try {
-        // Fetch the report data for this class & term which includes the recorded marks
         const res = await fetch(`/api/reports?school_id=${schoolId}&class_id=${classId}&term=${term}`);
         if (!res.ok) throw new Error("Failed to fetch existing marks.");
 
@@ -558,8 +607,6 @@ async function loadExistingMarks() {
           return;
         }
 
-        // Map student IDs to their recorded score for the selected subject and exam type
-        // Note: The reports endpoint returns subject objects. We map by student ID.
         let matchCount = 0;
         
         document.querySelectorAll('.student-score-input').forEach(input => {
@@ -568,7 +615,6 @@ async function loadExistingMarks() {
           
           const studentReport = reports.find(r => String(r.student_id) === String(studentId));
           if (studentReport && studentReport.subjects) {
-            // Find the subject name corresponding to the selected subjectId
             const subjectOpt = subjectSelect.options[subjectSelect.selectedIndex];
             const subjectName = subjectOpt ? subjectOpt.text.trim() : '';
 
@@ -578,17 +624,11 @@ async function loadExistingMarks() {
               if (examType === 'A1') storedScore = subData.a1;
               else if (examType === 'A2') storedScore = subData.a2;
               else if (examType === 'A3') storedScore = subData.a3;
-              else if (examType === 'Formative') {
-                // Formative stored as 20% scale, convert back to raw or display directly if stored
-                storedScore = subData.summativeScore; // or check formative raw entries
-              } else if (examType === 'Summative') {
+              else if (examType === 'Formative' || examType === 'Summative') {
                 storedScore = subData.summativeScore;
               }
 
               if (storedScore !== null && storedScore !== undefined && !isNaN(storedScore)) {
-                // Reverse calculate raw score from stored converted score if needed, 
-                // or display directly. Assuming storedScore is on the targetMax scale:
-                // To show in raw input box based on current markedOutOf:
                 const rawEquivalent = (storedScore / targetMax) * markedOutOf;
                 input.value = Number(rawEquivalent.toFixed(1));
                 calculateConvertedScore(input);
@@ -611,11 +651,29 @@ async function loadExistingMarks() {
         }
       }
     }
+
     document.addEventListener('DOMContentLoaded', () => {
       const schoolSubheading = document.getElementById('schoolSubheading');
       if (user?.school_name && schoolSubheading) {
         schoolSubheading.textContent = `School: ${user.school_name}`;
       }
+    });
+
+    // Mobile Sidebar Toggle Logic
+    document.addEventListener("DOMContentLoaded", () => {
+      const sidebar = document.getElementById("sidebar");
+      const overlay = document.getElementById("sidebar-overlay");
+      const toggleBtn = document.getElementById("toggle-sidebar");
+      const closeBtn = document.getElementById("close-sidebar");
+
+      function toggleSidebar() {
+        sidebar.classList.toggle("active");
+        overlay.classList.toggle("active");
+      }
+
+      if (toggleBtn) toggleBtn.addEventListener("click", toggleSidebar);
+      if (closeBtn) closeBtn.addEventListener("click", toggleSidebar);
+      if (overlay) overlay.addEventListener("click", toggleSidebar);
     });
   </script>
 </body>
