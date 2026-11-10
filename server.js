@@ -33,77 +33,92 @@ db.run("PRAGMA foreign_keys = ON");
 
 // Ensure subjects table exists and schools table has code column
 db.serialize(() => {
-    // 1. Subjects Table
-    db.run(`
-        CREATE TABLE IF NOT EXISTS subjects (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            school_id INTEGER NOT NULL,
-            name TEXT NOT NULL,
-            code TEXT,
-            FOREIGN KEY (school_id) REFERENCES schools(id)
-        )
-    `);
+            // 1. Subjects Table
+           db.run(`
+                CREATE TABLE IF NOT EXISTS schools (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL,
+                    code TEXT UNIQUE
+                )
+            `);
+           
+            db.run(`
+                CREATE TABLE IF NOT EXISTS subjects (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    school_id INTEGER NOT NULL,
+                    name TEXT NOT NULL,
+                    code TEXT,
+                    FOREIGN KEY (school_id) REFERENCES schools(id)
+                )
+            `);
 
-    // 2. School Term Settings Table
-    db.run(`
-        CREATE TABLE IF NOT EXISTS school_term_settings (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            school_id INTEGER NOT NULL,
-            term_name TEXT NOT NULL,
-            closing_date TEXT,
-            next_term_opening_date TEXT,
-            default_next_term_fees REAL,
-            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (school_id) REFERENCES schools(id)
-        )
-    `);
+            // 2. School Term Settings Table
+            db.run(`
+                CREATE TABLE IF NOT EXISTS school_term_settings (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    school_id INTEGER NOT NULL,
+                    term_name TEXT NOT NULL,
+                    closing_date TEXT,
+                    next_term_opening_date TEXT,
+                    default_next_term_fees REAL,
+                    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (school_id) REFERENCES schools(id)
+                )
+            `);
 
-    // 3. Users Table
-    db.run(`
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT UNIQUE NOT NULL,
-            email TEXT UNIQUE NOT NULL,
-            password_hash TEXT NOT NULL,
-            full_name TEXT NOT NULL,
-            is_active INTEGER DEFAULT 1,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )
-    `);
+            // 3. Users Table
+            db.run(`
+                CREATE TABLE IF NOT EXISTS users (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    username TEXT UNIQUE NOT NULL,
+                    email TEXT UNIQUE NOT NULL,
+                    password_hash TEXT NOT NULL,
+                    full_name TEXT NOT NULL,
+                    is_active INTEGER DEFAULT 1,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                )
+            `);
 
-    // 4. User Roles Mapping Table
-    db.run(`
-        CREATE TABLE IF NOT EXISTS user_roles (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER,
-            role_name TEXT NOT NULL,
-            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-        )
-    `);
+            // 4. User Roles Mapping Table
+            db.run(`
+                CREATE TABLE IF NOT EXISTS user_roles (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER,
+                    role_name TEXT NOT NULL,
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+                )
+            `);
 
-    // 5. Teacher Subject Allocations Table
-    db.run(`
-        CREATE TABLE IF NOT EXISTS subject_allocations (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            teacher_id INTEGER,
-            class_id TEXT NOT NULL,
-            stream_id TEXT NOT NULL,
-            subject_name TEXT NOT NULL,
-            FOREIGN KEY (teacher_id) REFERENCES users(id) ON DELETE CASCADE
-        )
-    `);
+            // 5. Teacher Subject Allocations Table
+            db.run(`
+                CREATE TABLE IF NOT EXISTS subject_allocations (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    teacher_id INTEGER,
+                    class_id TEXT NOT NULL,
+                    stream_id TEXT NOT NULL,
+                    subject_name TEXT NOT NULL,
+                    FOREIGN KEY (teacher_id) REFERENCES users(id) ON DELETE CASCADE
+                )
+            `);
 
-    // 6. Class Teacher Allocations Table
-    db.run(`
-        CREATE TABLE IF NOT EXISTS class_teacher_allocations (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            teacher_id INTEGER,
-            class_id TEXT NOT NULL,
-            stream_id TEXT NOT NULL,
-            FOREIGN KEY (teacher_id) REFERENCES users(id) ON DELETE CASCADE
-        )
-    `);
-});
+            // 6. Class Teacher Allocations Table
+            db.run(`
+                CREATE TABLE IF NOT EXISTS class_teacher_allocations (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    teacher_id INTEGER,
+                    class_id TEXT NOT NULL,
+                    stream_id TEXT NOT NULL,
+                    FOREIGN KEY (teacher_id) REFERENCES users(id) ON DELETE CASCADE
+                )
+            `, (createErr) => {
+                if (createErr) {
+                    console.error('Error creating tables:', createErr.message);
+                } else {
+                    console.log('All database tables verified/created successfully.');
+                }
+            });
+        });
+
 db.all(`SELECT st.school_id, st.full_name, c.name as class_name, m.term, m.score FROM marks m JOIN students st ON m.student_id = st.id JOIN classes c ON st.class_id = c.id`, [], (err, rows) => {
   console.log("=== DB MARKS CHECK ===", rows);
 });
