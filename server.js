@@ -16,7 +16,8 @@ app.use(session({
         maxAge: 24 * 60 * 60 * 1000 // 1 day session lifespan
     }
 }));
-const dbPath = path.join(__dirname, "database.db");
+// Use /tmp directory on Vercel because the root folder is read-only
+const dbPath = process.env.VERCEL ? path.join('/tmp', 'database.db') : path.join(__dirname, "database.db");
 const db = new sqlite3.Database(dbPath);
 const { calculateReports } = require('./generate-report-card');
 
