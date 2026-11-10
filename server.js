@@ -382,16 +382,15 @@ app.post("/api/login", async (req, res) => {
   const cleanEmail = rawEmail.trim().toLowerCase();
   const cleanPassword = rawPassword.trim();
 
+  // FIX: Removed u.school_id since the users table doesn't have it, 
+  // or added a fallback/null if your schema needs it.
   const sql = `
     SELECT 
       u.id, 
-      u.school_id, 
       u.full_name, 
       u.role, 
-      u.password_hash,
-      s.name AS school_name 
+      u.password_hash 
     FROM users u 
-    LEFT JOIN schools s ON u.school_id = s.id 
     WHERE LOWER(u.email) = ?
   `;
 
@@ -441,7 +440,7 @@ app.post("/api/login", async (req, res) => {
           email: currentUser.email,
           fullName: currentUser.full_name,
           activeRole: finalRole,
-          schoolId: currentUser.school_id
+          schoolId: null
         };
 
         req.session.save((saveErr) => {
@@ -461,8 +460,6 @@ app.post("/api/login", async (req, res) => {
             redirectUrl = '/dashboard/class-teacher';
           }
 
-          // FIX APPLIED HERE: Added the 'user' object to the response payload 
-          // so the frontend can populate localStorage correctly.
           return res.json({ 
             success: true, 
             message: "Login successful", 
@@ -471,8 +468,8 @@ app.post("/api/login", async (req, res) => {
               id: currentUser.id,
               full_name: currentUser.full_name,
               role: finalRole,
-              school_id: currentUser.school_id,
-              school_name: currentUser.school_name || "School Portal"
+              school_id: null,
+              school_name: "School Portal"
             }
           });
         });
