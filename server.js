@@ -100,6 +100,15 @@ db.serialize(() => {
                     FOREIGN KEY (teacher_id) REFERENCES users(id) ON DELETE CASCADE
                 )
             `);
+          db.run(`
+  CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    full_name TEXT NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    role TEXT NOT NULL DEFAULT 'teacher'
+  )
+`);
 
             // 6. Class Teacher Allocations Table
             db.run(`
@@ -203,6 +212,16 @@ db.all(`
 db.run("ALTER TABLE classes ADD COLUMN class_teacher_id INTEGER;", (err) => {
     // Ignore error if column already exists
 });
+
+db.run(`ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'teacher'`, (err) => {
+  if (err) {
+    // Column likely already exists, which is safe to ignore
+    console.log("Role column check: column already present or handled.");
+  } else {
+    console.log("Successfully added missing role column to users table.");
+  }
+});
+
     // Migration: Add missing 'teacher_id' column to classes table
     db.run("ALTER TABLE classes ADD COLUMN teacher_id INTEGER;", (err) => {
         // Ignore error if column already exists
